@@ -5,6 +5,14 @@ enum Piece {
     White,
     Black,
 }
+impl Piece {
+    fn other(&self) -> Piece {
+        match self {
+            Piece::White => Piece::Black,
+            Piece::Black => Piece::White,
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Player {
