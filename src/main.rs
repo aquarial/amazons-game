@@ -126,11 +126,11 @@ impl Board {
         return v;
     }
 }
-fn main() {
-    let mut b = Board::new(4);
-    println!("Initial {}", b.pprint());
 
-    for (i,s) in b.successors(Piece::White).iter().enumerate() {
+fn main() {
+    let mut b0 = vec![Board::new(4)];
+    let mut piece = Piece::White;
+    for (i,s) in b.successors(piece).iter().enumerate() {
         println!("- {}\n{}\n", i, s.pprint());
     }
 }
