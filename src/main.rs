@@ -128,10 +128,23 @@ impl Board {
 }
 
 fn main() {
-    let mut b0 = vec![Board::new(4)];
+    let mut b0 = vec![Board::new(3)];
     let mut piece = Piece::White;
-    for (i,s) in b.successors(piece).iter().enumerate() {
-        println!("- {}\n{}\n", i, s.pprint());
+
+    loop {
+        piece = piece.other();
+        let next: Vec<Board> = b0.iter_mut().flat_map(|b| b.successors(&piece)).collect();
+        println!("{:?} went, Size {}", piece, next.len());
+        if next.len() == 0 {
+            break;
+        } else {
+            for i in 0..next.len() {
+                println!("{:?}\n{}\n{:?}\n", next[i].players,next[i].pprint(), next[i]);
+            }
+        }
+        b0 = next;
+        break;
     }
+    println!("{} situations, {:?} went last", b0.len(), piece);
 }
 
