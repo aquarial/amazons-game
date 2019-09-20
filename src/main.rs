@@ -127,20 +127,3 @@ fn main() {
     }
 }
 
-//const dirs: Vec<(u64,u64)> = vec!((-1,-1), (0,-1), (1,-1),
-//                                  (-1, 0),         (1, 0),
-//                                  (-1, 1), (0, 1), (1, 1));
-//struct QueenRangeIterator<'a> {
-//    direction: i8,
-//    magnitude: u64,
-//    r: u64,
-//    c: u64,
-//    walls: &'a BitVec,
-//}
-//
-//impl<'a> Iterator for QueenRangeIterator<'a> {
-//    type Item = (u64, u64);
-//    fn next(&mut self) -> Option<(u64, u64)> {
-//
-//    }
-//}
