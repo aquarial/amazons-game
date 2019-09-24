@@ -108,10 +108,13 @@ impl Board {
     fn successors(&self, piece: &Piece) -> Vec<Board> {
         let mut next = self.clone();
         let mut v = Vec::new();
-        for (pi, p) in self.players.clone().iter().filter(|p| p.team == *piece).enumerate() {
+        for (pi, p) in self.players.clone().iter().enumerate() {
+            if p.team != *piece {
+                continue;
+            }
             next.wall_set(p.r, p.c, false);
-            for (npr, npc) in self.queen_range(p.r, p.c) {
-                for (nsr, nsc) in self.queen_range(npr, npc) {
+            for (npr, npc) in next.queen_range(p.r, p.c) {
+                for (nsr, nsc) in next.queen_range(npr, npc) {
                     let mut new_b = next.clone();
                     new_b.players[pi].r = npr;
                     new_b.players[pi].c = npc;
