@@ -27,16 +27,15 @@ struct Board {
     players: Vec<Player>,
 }
 
-const BOARD_SIZE: u8 = 3;
+const BOARD_SIZE: u8 = 5;
 
 impl Board {
     fn new() -> Board {
-        let full_size = BOARD_SIZE + 2;
-        let mut b = BitVec::new_fill(false, (full_size*full_size).into());
-        for r in 0..full_size {
-            for c in 0..full_size {
-                if r == 0 || c == 0 || r == full_size-1 || c == full_size-1 {
-                    b.set((r * full_size + c) as u64,  true);
+        let mut b = BitVec::new_fill(false, (BOARD_SIZE*BOARD_SIZE) as u64);
+        for r in 0..BOARD_SIZE {
+            for c in 0..BOARD_SIZE {
+                if r == 0 || c == 0 || r == BOARD_SIZE-1 || c == BOARD_SIZE-1 {
+                    b.set((r * BOARD_SIZE + c) as u64,  true);
                 }
             }
         }
@@ -45,7 +44,7 @@ impl Board {
         players.push(Player{team:Piece::White, r:2, c:2});
         players.push(Player{team:Piece::Black, r:3, c:3});
         for p in &players {
-            b.set((p.r * full_size + p.c) as u64, true);
+            b.set((p.r * BOARD_SIZE + p.c) as u64, true);
         }
         return Board {
             walls: b,
