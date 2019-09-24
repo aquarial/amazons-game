@@ -17,25 +17,26 @@ impl Piece {
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Player {
     team: Piece,
-    r: u64,
-    c: u64,
+    r: u8,
+    c: u8,
 }
 
 #[derive(Clone, Debug)]
 struct Board {
-    size: u64,
     walls: BitVec,
     players: Vec<Player>,
 }
 
+const BOARD_SIZE: u8 = 3;
+
 impl Board {
-    fn new(size: u64) -> Board {
-        let full_size = size + 2;
+    fn new() -> Board {
+        let full_size = BOARD_SIZE + 2;
         let mut b = BitVec::new_fill(false, (full_size*full_size).into());
         for r in 0..full_size {
             for c in 0..full_size {
                 if r == 0 || c == 0 || r == full_size-1 || c == full_size-1 {
-                    b.set(r * full_size + c,  true);
+                    b.set((r * full_size + c) as u64,  true);
                 }
             }
         }
@@ -44,24 +45,23 @@ impl Board {
         players.push(Player{team:Piece::White, r:2, c:2});
         players.push(Player{team:Piece::Black, r:3, c:3});
         for p in &players {
-            b.set(p.r * full_size + p.c, true);
+            b.set((p.r * full_size + p.c) as u64, true);
         }
         return Board {
-            size: full_size,
             walls: b,
             players: players,
         };
     }
-    fn wall_set(&mut self, r:u64, c:u64, val: bool) {
-        self.walls.set(r * self.size + c, val);
+    fn wall_set(&mut self, r:u8, c:u8, val: bool) {
+        self.walls.set((r * BOARD_SIZE + c) as u64, val);
     }
-    fn wall_at(&self, r:u64, c:u64) -> bool {
-        self.walls.get(r * self.size + c)
+    fn wall_at(&self, r:u8, c:u8) -> bool {
+        self.walls.get((r * BOARD_SIZE + c) as u64)
     }
     fn pprint(&self) -> String {
         let mut s = String::new();
-        for r in 0..self.size {
-            for c in 0..self.size {
+        for r in 0..BOARD_SIZE {
+            for c in 0..BOARD_SIZE {
                 if !self.wall_at(r,c) {
                     s.push('.');
                     continue;
@@ -81,18 +81,18 @@ impl Board {
         }
         return s;
     }
-    fn queen_range(&self, r: u64, c: u64) -> Vec<(u64, u64)> {
+    fn queen_range(&self, r: u8, c: u8) -> Vec<(u8, u8)> {
         let mut v = Vec::new();
         for dx in -1 ..= 1 {
             for dy in -1 ..= 1 {
                 if dx == 0 && dy == 0 {
                     continue;
                 }
-                fn offset(base: u64, offset: i64) -> u64 {
+                fn offset(base: u8, offset: i8) -> u8 {
                     if offset < 0 {
-                        base - ((-offset) as u64)
+                        base - (offset.abs() as u8)
                     } else {
-                        base + (offset as u64)
+                        base + offset as u8
                     }
                 }
                 for dist in 1 .. {
@@ -128,7 +128,7 @@ impl Board {
 }
 
 fn main() {
-    let mut b0 = vec![Board::new(3)];
+    let mut b0 = vec![Board::new()];
     let mut piece = Piece::White;
 
     loop {
