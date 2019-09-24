@@ -68,9 +68,9 @@ impl Board {
                 match self.players.iter().find(|p| p.r == r && p.c == c) {
                     Some(p) => {
                         if p.team == Piece::Black {
-                            s.push('@');
+                            s.push('B');
                         } else {
-                            s.push('+');
+                            s.push('W');
                         }
                     },
                     None => s.push('#'),
