@@ -29,6 +29,12 @@ struct Board {
     players: Vec<Player>,
 }
 
+struct Move {
+    player: Player,
+    new_pos: (u8, u8),
+    new_shot: (u8, u8),
+}
+
 const BOARD_SIZE: u8 = 5;
 
 impl Board {
@@ -107,7 +113,20 @@ impl Board {
         }
         return v;
     }
-    fn successors(&self, piece: &Piece) -> Vec<Board> {
+    fn with_move(&self, m: &Move) -> Board {
+        let mut new_b = self.clone();
+        for p in new_b.players.iter_mut() {
+            if m.player == *p {
+                p.r = m.new_pos.0;
+                p.c = m.new_pos.1;
+                break;
+            }
+        }
+        new_b.wall_set(m.new_pos.0, m.new_pos.1, true);
+        new_b.wall_set(m.new_shot.0, m.new_shot.1, true);
+        return new_b;
+    }
+    fn successors(&self, piece: &Piece) -> Vec<Move> {
         let mut next = self.clone();
         let mut v = Vec::new();
         for (pi, p) in self.players.iter().enumerate() {
@@ -117,12 +136,11 @@ impl Board {
             next.wall_set(p.r, p.c, false);
             for (npr, npc) in next.queen_range(p.r, p.c) {
                 for (nsr, nsc) in next.queen_range(npr, npc) {
-                    let mut new_b = next.clone();
-                    new_b.players[pi].r = npr;
-                    new_b.players[pi].c = npc;
-                    new_b.wall_set(npr, npc, true);
-                    new_b.wall_set(nsr, nsc, true);
-                    v.push(new_b);
+                    v.push(Move {
+                        player: self.players[pi].clone(),
+                        new_pos: (npr, npc),
+                        new_shot: (nsr, nsc),
+                    });
                 }
             }
             next.wall_set(p.r, p.c, true);
