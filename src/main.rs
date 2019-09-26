@@ -108,7 +108,7 @@ impl Board {
     fn successors(&self, piece: &Piece) -> Vec<Board> {
         let mut next = self.clone();
         let mut v = Vec::new();
-        for (pi, p) in self.players.clone().iter().enumerate() {
+        for (pi, p) in self.players.iter().enumerate() {
             if p.team != *piece {
                 continue;
             }
