@@ -29,7 +29,7 @@ struct Board {
     players: Vec<Player>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Move {
     player: Player,
     new_pos: (u8, u8),
