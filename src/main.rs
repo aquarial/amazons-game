@@ -29,6 +29,7 @@ struct Board {
     players: Vec<Player>,
 }
 
+#[derive(Debug)]
 struct Move {
     player: Player,
     new_pos: (u8, u8),
@@ -186,6 +187,16 @@ impl Board {
         }
         return distances;
     }
+}
+
+
+fn max_move(board: &Board, piece: &Piece) -> Option<Move> {
+    return board.successors(&piece).iter()
+        .map(|m| max_move(&board.with_move(m), &piece.other()))
+        .min_by_key(|m| match m {
+            Some(their) => board.with_move(their).evaluate(&piece),
+            None => i64::max_value(),
+        });
 }
 
 fn main() {
