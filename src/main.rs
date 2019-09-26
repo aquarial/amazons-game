@@ -1,4 +1,6 @@
 use bv::BitVec;
+use std::collections::HashSet;
+use std::collections::VecDeque;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum Piece {
@@ -126,6 +128,45 @@ impl Board {
             next.wall_set(p.r, p.c, true);
         }
         return v;
+    }
+
+    fn evaluate(&self, piece: &Piece) -> i64 {
+        let us = self.bfs(&piece);
+        let them = self.bfs(&piece.other());
+        let mut score = 0;
+        for (a,b) in us.iter().zip(them.iter()) {
+            if a < b {
+                score = score + 1;
+            }
+            if a > b {
+                score = score - 1;
+            }
+        }
+        return score;
+    }
+    fn bfs(&self, piece: &Piece) -> Vec<u8> {
+        let mut distances: Vec<u8> = vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize];
+        struct Loc {
+            row: u8,
+            col: u8,
+            depth: u8,
+        }
+        let mut vecdeq: VecDeque<Loc> = self.players.iter()
+            .filter(|p| p.team == *piece)
+            .map(|p| Loc { row: p.r, col: p.c, depth: 0}).collect();
+        let mut visited: HashSet<(u8, u8)> = HashSet::new();
+
+        while let Some(curr) = vecdeq.pop_front() {
+            for next in self.queen_range(curr.row, curr.col) {
+                if !visited.contains(&next) {
+                    let loc = Loc { row: next.0, col: next.1, depth: curr.depth+1};
+                    distances[loc.row as usize * BOARD_SIZE as usize + loc.col as usize] = curr.depth + 1;
+                    visited.insert((loc.row, loc.col));
+                    vecdeq.push_back(loc);
+                }
+            }
+        }
+        return distances;
     }
 }
 
