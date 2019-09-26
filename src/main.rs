@@ -123,6 +123,7 @@ impl Board {
                 break;
             }
         }
+        new_b.wall_set(m.player.r, m.player.c, false);
         new_b.wall_set(m.new_pos.0, m.new_pos.1, true);
         new_b.wall_set(m.new_shot.0, m.new_shot.1, true);
         return new_b;
