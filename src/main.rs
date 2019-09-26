@@ -191,33 +191,40 @@ impl Board {
 }
 
 
-fn max_move(board: &Board, piece: &Piece) -> Option<Move> {
-    return board.successors(&piece).iter()
-        .map(|m| max_move(&board.with_move(m), &piece.other()))
-        .min_by_key(|m| match m {
-            Some(their) => board.with_move(their).evaluate(&piece),
-            None => i64::max_value(),
-        });
+fn max_move(board: &Board, piece: &Piece) -> Option<(Move, i64)> {
+    let mut best: Option<Move> = None;
+    let mut score: i64 = i64::min_value();
+    for m in board.successors(&piece){
+        let b = board.with_move(&m);
+
+        if let Some((_, resp_score)) = max_move(&b, &piece.other()) {
+            if score < resp_score {
+                score = resp_score;
+                best = Some(m);
+            }
+        } else {
+            best = Some(m);
+            score = i64::max_value();
+            break;
+        }
+    }
+
+    return match best {
+        Some(m) => Some((m, score)),
+        None => None,
+    }
 }
 
 fn main() {
-    let mut b0 = vec![Board::new()];
-    let mut piece = Piece::White;
+    let b0 = Board::new();
+    let piece = Piece::White;
 
-    loop {
-        piece = piece.other();
-        let next: Vec<Board> = b0.iter_mut().flat_map(|b| b.successors(&piece)).collect();
-        println!("{:?} went, Size {}", piece, next.len());
-        if next.len() == 0 {
-            break;
-        } else {
-            for i in 0..next.len() {
-                println!("{:?}\n{}\n{:?}\n", next[i].players,next[i].pprint(), next[i]);
-            }
-        }
-        b0 = next;
-        break;
+    println!("Start\n{}", b0.pprint());
+    let m = max_move(&b0, &piece);
+    println!("Move {:?}", max_move(&b0, &piece));
+
+    if let Some((m, s)) = m {
+        println!("End {}\n{}", s, b0.with_move(&m).pprint());
     }
-    println!("{} situations, {:?} went last", b0.len(), piece);
 }
 
