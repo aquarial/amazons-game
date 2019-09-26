@@ -191,15 +191,25 @@ impl Board {
 }
 
 
-fn max_move(board: &Board, piece: &Piece) -> Option<(Move, i64)> {
+fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
+    if depth <= 1 {
+        let best = board.successors(&piece).iter().min_by_key(|m| board.with_move(&m).evaluate(&piece.other())).cloned();
+        if let Some(v) = best {
+            return (Some(v.clone()), board.with_move(&v).evaluate(piece));
+        } else {
+            return (None, i64::min_value());
+        }
+    }
+
     let mut best: Option<Move> = None;
     let mut score: i64 = i64::min_value();
     for m in board.successors(&piece){
         let b = board.with_move(&m);
 
-        if let Some((_, resp_score)) = max_move(&b, &piece.other()) {
-            if score < resp_score {
-                score = resp_score;
+        if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1) {
+            println!("Make {:?} makes {:?} for \n{}", piece, n, board.with_move(&n).pprint());
+            if score > -resp_score {
+                score = -resp_score;
                 best = Some(m);
             }
         } else {
@@ -209,10 +219,7 @@ fn max_move(board: &Board, piece: &Piece) -> Option<(Move, i64)> {
         }
     }
 
-    return match best {
-        Some(m) => Some((m, score)),
-        None => None,
-    }
+    return (best, score);
 }
 
 fn main() {
@@ -220,11 +227,11 @@ fn main() {
     let piece = Piece::White;
 
     println!("Start\n{}", b0.pprint());
-    let m = max_move(&b0, &piece);
-    println!("Move {:?}", max_move(&b0, &piece));
+    let m = max_move(&b0, &piece, 2);
+    println!("Move {:?}", m);
 
-    if let Some((m, s)) = m {
-        println!("End {}\n{}", s, b0.with_move(&m).pprint());
+    if let (Some(m), _) = m {
+        println!("\nEnd\n{}", b0.with_move(&m).pprint());
     }
 }
 
