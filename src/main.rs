@@ -195,7 +195,7 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
     if depth <= 1 {
         let best = board.successors(&piece).iter().min_by_key(|m| board.with_move(&m).evaluate(&piece.other())).cloned();
         if let Some(v) = best {
-            return (Some(v.clone()), board.with_move(&v).evaluate(piece));
+            return (Some(v.clone()), -board.with_move(&v).evaluate(&piece.other()));
         } else {
             return (None, i64::min_value());
         }
@@ -227,11 +227,11 @@ fn main() {
     let piece = Piece::White;
 
     println!("Start\n{}", b0.pprint());
-    let m = max_move(&b0, &piece, 2);
+    let m = max_move(&b0, &piece, 80);
     println!("Move {:?}", m);
 
-    if let (Some(m), _) = m {
-        println!("\nEnd\n{}", b0.with_move(&m).pprint());
+    if let (Some(m2), _) = m {
+        println!("\nEnd\n{}", b0.with_move(&m2).pprint());
     }
 }
 
