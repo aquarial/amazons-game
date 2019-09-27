@@ -48,8 +48,10 @@ impl Board {
         }
 
         let mut players = Vec::new();
-        players.push(Player{team:Piece::White, r:2, c:2});
-        players.push(Player{team:Piece::Black, r:3, c:3});
+        players.push(Player{team:Piece::White, r:3, c:3});
+        players.push(Player{team:Piece::White, r:3, c:6});
+        players.push(Player{team:Piece::Black, r:6, c:3});
+        players.push(Player{team:Piece::Black, r:6, c:6});
         for p in &players {
             b.set((p.r * BOARD_SIZE + p.c) as u64, true);
         }
