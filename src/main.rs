@@ -207,15 +207,19 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
         let b = board.with_move(&m);
 
         if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1) {
-            println!("Make {:?} makes {:?} for \n{}", piece, n, board.with_move(&n).pprint());
+            if depth == 80 {
+                println!("Best response for {:?} after \n{} is \n{}", piece.other(), b.pprint(), b.with_move(&n).pprint());
+            }
             if score > -resp_score {
                 score = -resp_score;
                 best = Some(m);
             }
         } else {
+            if depth == 80 {
+                println!("Best response for {:?} after \n{} is \ngive up\n\n", piece.other(), b.pprint());
+            }
             best = Some(m);
             score = i64::max_value();
-            break;
         }
     }
 
