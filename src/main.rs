@@ -6,7 +6,9 @@ use board::*;
 
 fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
     if depth <= 1 {
-        let best = board.successors(&piece).iter().min_by_key(|m| board.with_move(&m).evaluate(&piece.other())).cloned();
+        let best = board.successors(&piece).iter()
+            .min_by_key(|m| board.with_move(&m).evaluate(&piece.other()))
+            .cloned();
         if let Some(v) = best {
             return (Some(v.clone()), -board.with_move(&v).evaluate(&piece.other()));
         } else {
