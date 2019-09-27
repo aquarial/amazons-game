@@ -115,18 +115,18 @@ impl Board {
         return v;
     }
     fn with_move(&self, m: &Move) -> Board {
-        let mut new_b = self.clone();
-        for p in new_b.players.iter_mut() {
+        let mut board = self.clone();
+        for p in board.players.iter_mut() {
             if m.player == *p {
                 p.r = m.new_pos.0;
                 p.c = m.new_pos.1;
                 break;
             }
         }
-        new_b.wall_set(m.player.r, m.player.c, false);
-        new_b.wall_set(m.new_pos.0, m.new_pos.1, true);
-        new_b.wall_set(m.new_shot.0, m.new_shot.1, true);
-        return new_b;
+        board.wall_set(m.player.r, m.player.c, false);
+        board.wall_set(m.new_pos.0, m.new_pos.1, true);
+        board.wall_set(m.new_shot.0, m.new_shot.1, true);
+        return board;
     }
     fn successors(&self, piece: &Piece) -> Vec<Move> {
         let mut next = self.clone();
