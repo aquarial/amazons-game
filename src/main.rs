@@ -36,8 +36,6 @@ struct Move {
     new_shot: (u8, u8),
 }
 
-const BOARD_SIZE: u8 = 5;
-
 impl Board {
     fn new() -> Board {
         let mut b = BitVec::new_fill(false, (BOARD_SIZE*BOARD_SIZE) as u64);
@@ -207,7 +205,7 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
         let b = board.with_move(&m);
 
         if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1) {
-            if depth == 80 {
+            if depth == DEBUG_DEPTH {
                 println!("Best response for {:?} after \n{} is \n{}", piece.other(), b.pprint(), b.with_move(&n).pprint());
             }
             if score > -resp_score {
@@ -215,7 +213,7 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
                 best = Some(m);
             }
         } else {
-            if depth == 80 {
+            if depth == DEBUG_DEPTH {
                 println!("Best response for {:?} after \n{} is \ngive up\n\n", piece.other(), b.pprint());
             }
             best = Some(m);
@@ -226,12 +224,15 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
     return (best, score);
 }
 
+const DEBUG_DEPTH: i32 = 2;
+const BOARD_SIZE: u8 = 8+2;
+
 fn main() {
     let b0 = Board::new();
     let piece = Piece::White;
 
     println!("Start\n{}", b0.pprint());
-    let m = max_move(&b0, &piece, 80);
+    let m = max_move(&b0, &piece, DEBUG_DEPTH);
     println!("Move {:?}", m);
 
     if let (Some(m2), _) = m {
