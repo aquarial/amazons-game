@@ -31,6 +31,21 @@ pub struct Move {
     pub new_pos: (u8, u8),
     pub new_shot: (u8, u8),
 }
+
+#[derive(Clone, Debug)]
+pub struct DistState {
+    pub left: Vec<u8>,
+    pub right: Vec<u8>,
+}
+impl DistState {
+    pub fn new() -> DistState {
+        DistState {
+            left: vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize],
+            right: vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize],
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
@@ -151,11 +166,11 @@ impl Board {
         return v;
     }
 
-    pub fn evaluate(&self, piece: &Piece) -> i64 {
-        let us = self.bfs(&piece);
-        let them = self.bfs(&piece.other());
+    pub fn evaluate(&self, piece: &Piece, distState: &mut DistState) -> i64 {
+        self.bfs(&piece, &mut distState.left);
+        self.bfs(&piece.other(), &mut distState.right);
         let mut score = 0;
-        for (a,b) in us.iter().zip(them.iter()) {
+        for (a,b) in distState.left.iter().zip(distState.right.iter()) {
             if a < b {
                 score = score + 1;
             }
@@ -165,8 +180,7 @@ impl Board {
         }
         return score;
     }
-    fn bfs(&self, piece: &Piece) -> Vec<u8> {
-        let mut distances: Vec<u8> = vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize];
+    fn bfs(&self, piece: &Piece, distances: &mut Vec<u8>) {
         struct Loc {
             row: u8,
             col: u8,
@@ -187,6 +201,6 @@ impl Board {
                 }
             }
         }
-        return distances;
     }
 }
+

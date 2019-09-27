@@ -4,13 +4,13 @@ mod board;
 use board::*;
 
 
-fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
+fn max_move(board: &Board, piece: &Piece, depth: i32, distState: &mut DistState) -> (Option<Move>, i64) {
     if depth <= 1 {
         let best = board.successors(&piece).iter()
-            .min_by_key(|m| board.with_move(&m).evaluate(&piece.other()))
+            .min_by_key(|m| board.with_move(&m).evaluate(&piece.other(), distState))
             .cloned();
         if let Some(v) = best {
-            return (Some(v.clone()), -board.with_move(&v).evaluate(&piece.other()));
+            return (Some(v.clone()), -board.with_move(&v).evaluate(&piece.other(), distState));
         } else {
             return (None, i64::min_value());
         }
@@ -21,7 +21,7 @@ fn max_move(board: &Board, piece: &Piece, depth: i32) -> (Option<Move>, i64) {
     for m in board.successors(&piece){
         let b = board.with_move(&m);
 
-        if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1) {
+        if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1, distState) {
             if depth == DEBUG_DEPTH {
                 println!("Best response for {:?} after \n{} is \n{}", piece.other(), b.pprint(), b.with_move(&n).pprint());
             }
@@ -46,9 +46,10 @@ const DEBUG_DEPTH: i32 = 2;
 fn main() {
     let b0 = Board::new();
     let piece = Piece::White;
+    let mut diststate = DistState::new();
 
     println!("Start\n{}", b0.pprint());
-    let m = max_move(&b0, &piece, DEBUG_DEPTH);
+    let m = max_move(&b0, &piece, DEBUG_DEPTH, &mut diststate);
     println!("Move {:?}", m);
 
     if let (Some(m2), _) = m {
