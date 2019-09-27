@@ -5,22 +5,22 @@ use std::collections::VecDeque;
 const BOARD_SIZE: u8 = 8+2;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Piece {
+pub enum Team {
     White,
     Black,
 }
-impl Piece {
-    pub fn other(&self) -> Piece {
+impl Team {
+    pub fn other(&self) -> Team {
         match self {
-            Piece::White => Piece::Black,
-            Piece::Black => Piece::White,
+            Team::White => Team::Black,
+            Team::Black => Team::White,
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Player {
-    pub team: Piece,
+    pub team: Team,
     pub r: u8,
     pub c: u8,
 }
@@ -64,10 +64,10 @@ impl Board {
         }
 
         let mut players = Vec::new();
-        players.push(Player{team:Piece::White, r:3, c:3});
-        players.push(Player{team:Piece::White, r:3, c:6});
-        players.push(Player{team:Piece::Black, r:6, c:3});
-        players.push(Player{team:Piece::Black, r:6, c:6});
+        players.push(Player{team:Team::White, r:3, c:3});
+        players.push(Player{team:Team::White, r:3, c:6});
+        players.push(Player{team:Team::Black, r:6, c:3});
+        players.push(Player{team:Team::Black, r:6, c:6});
         for p in &players {
             b.set((p.r * BOARD_SIZE + p.c) as u64, true);
         }
@@ -92,7 +92,7 @@ impl Board {
                 }
                 match self.players.iter().find(|p| p.r == r && p.c == c) {
                     Some(p) => {
-                        if p.team == Piece::Black {
+                        if p.team == Team::Black {
                             s.push('B');
                         } else {
                             s.push('W');
@@ -144,11 +144,12 @@ impl Board {
         board.wall_set(m.new_shot.0, m.new_shot.1, true);
         return board;
     }
-    pub fn successors(&self, piece: &Piece) -> Vec<Move> {
+
+    pub fn successors(&self, team: &Team) -> Vec<Move> {
         let mut next = self.clone();
         let mut v = Vec::new();
         for (pi, p) in self.players.iter().enumerate() {
-            if p.team != *piece {
+            if p.team != *team {
                 continue;
             }
             next.wall_set(p.r, p.c, false);
@@ -166,11 +167,11 @@ impl Board {
         return v;
     }
 
-    pub fn evaluate(&self, piece: &Piece, distState: &mut DistState) -> i64 {
-        self.bfs(&piece, &mut distState.left);
-        self.bfs(&piece.other(), &mut distState.right);
+    pub fn evaluate(&self, piece: &Team, dist_state: &mut DistState) -> i64 {
+        self.bfs(&piece, &mut dist_state.left);
+        self.bfs(&piece.other(), &mut dist_state.right);
         let mut score = 0;
-        for (a,b) in distState.left.iter().zip(distState.right.iter()) {
+        for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
             if a < b {
                 score = score + 1;
             }
@@ -180,7 +181,10 @@ impl Board {
         }
         return score;
     }
-    fn bfs(&self, piece: &Piece, distances: &mut Vec<u8>) {
+    fn bfs(&self, piece: &Team, distances: &mut Vec<u8>) {
+        for r in 0..distances.len() {
+            distances[r] = 0;
+        }
         struct Loc {
             row: u8,
             col: u8,

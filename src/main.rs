@@ -4,7 +4,7 @@ mod board;
 use board::*;
 
 
-fn max_move(board: &Board, piece: &Piece, depth: i32, dist_state: &mut DistState) -> (Option<Move>, i64) {
+fn max_move(board: &Board, piece: &Team, depth: i32, dist_state: &mut DistState) -> (Option<Move>, i64) {
     if depth <= 1 {
         let best = board.successors(&piece).iter()
             .min_by_key(|m| board.with_move(&m).evaluate(&piece.other(), dist_state))
@@ -45,7 +45,7 @@ const DEBUG_DEPTH: i32 = 2;
 
 fn main() {
     let b0 = Board::new();
-    let piece = Piece::White;
+    let piece = Team::White;
     let mut diststate = DistState::new();
 
     println!("Start\n{}", b0.pprint());
