@@ -19,29 +19,39 @@ impl Team {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Pos {
+    pub row: u8,
+    pub col: u8,
+}
+impl Pos {
+    pub fn to_linear(&self, num_cols: u8) -> usize {
+       self.row as usize * num_cols as usize + self.col as usize
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Player {
     pub team: Team,
-    pub r: u8,
-    pub c: u8,
+    pub pos: Pos,
 }
 
 #[derive(Clone, Debug)]
 pub struct Move {
     pub player: Player,
-    pub new_pos: (u8, u8),
-    pub new_shot: (u8, u8),
+    pub new_pos: Pos,
+    pub new_shot: Pos,
 }
 
 #[derive(Clone, Debug)]
 pub struct DistState {
-    pub left: Vec<u8>,
-    pub right: Vec<u8>,
+    left: Vec<u8>,
+    right: Vec<u8>,
 }
 impl DistState {
     pub fn new() -> DistState {
         DistState {
-            left: vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize],
-            right: vec![u8::max_value(); BOARD_SIZE as usize * BOARD_SIZE as usize],
+            left: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
+            right: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
         }
     }
 }
@@ -64,33 +74,34 @@ impl Board {
         }
 
         let mut players = Vec::new();
-        players.push(Player{team:Team::White, r:3, c:3});
-        players.push(Player{team:Team::White, r:3, c:6});
-        players.push(Player{team:Team::Black, r:6, c:3});
-        players.push(Player{team:Team::Black, r:6, c:6});
+        players.push(Player{ team:Team::White, pos:Pos {row: 3, col: 3} });
+        players.push(Player{ team:Team::White, pos:Pos {row: 3, col: 6} });
+        players.push(Player{ team:Team::Black, pos:Pos {row: 6, col: 3} });
+        players.push(Player{ team:Team::Black, pos:Pos {row: 6, col: 6} });
         for p in &players {
-            b.set((p.r * BOARD_SIZE + p.c) as u64, true);
+            b.set(p.pos.to_linear(BOARD_SIZE) as u64, true);
         }
         return Board {
             walls: b,
             players: players,
         };
     }
-    pub fn wall_set(&mut self, r:u8, c:u8, val: bool) {
-        self.walls.set((r * BOARD_SIZE + c) as u64, val);
+    pub fn wall_set(&mut self, p: &Pos, val: bool) {
+        self.walls.set(p.to_linear(BOARD_SIZE) as u64, val);
     }
-    pub fn wall_at(&self, r:u8, c:u8) -> bool {
-        self.walls.get((r * BOARD_SIZE + c) as u64)
+    pub fn wall_at(&self, p: &Pos) -> bool {
+        self.walls.get((p.to_linear(BOARD_SIZE)) as u64)
     }
     pub fn pprint(&self) -> String {
         let mut s = String::new();
         for r in 0..BOARD_SIZE {
             for c in 0..BOARD_SIZE {
-                if !self.wall_at(r,c) {
+                let pos = Pos { row: r, col: c};
+                if !self.wall_at(&pos) {
                     s.push('.');
                     continue;
                 }
-                match self.players.iter().find(|p| p.r == r && p.c == c) {
+                match self.players.iter().find(|p| p.pos == pos) {
                     Some(p) => {
                         if p.team == Team::Black {
                             s.push('B');
@@ -134,14 +145,13 @@ impl Board {
         let mut board = self.clone();
         for p in board.players.iter_mut() {
             if m.player == *p {
-                p.r = m.new_pos.0;
-                p.c = m.new_pos.1;
+                p.pos = m.new_pos.clone();
                 break;
             }
         }
-        board.wall_set(m.player.r, m.player.c, false);
-        board.wall_set(m.new_pos.0, m.new_pos.1, true);
-        board.wall_set(m.new_shot.0, m.new_shot.1, true);
+        board.wall_set(&m.player.pos, false);
+        board.wall_set(&m.new_pos, true);
+        board.wall_set(&m.new_shot, true);
         return board;
     }
 
@@ -182,26 +192,23 @@ impl Board {
         return score;
     }
     fn bfs(&self, piece: &Team, distances: &mut Vec<u8>) {
-        for r in 0..distances.len() {
-            distances[r] = 0;
+        for i in 0..distances.len() {
+            distances[i] = 0;
         }
         struct Loc {
-            row: u8,
-            col: u8,
+            pos: Pos,
             depth: u8,
         }
         let mut vecdeq: VecDeque<Loc> = self.players.iter()
             .filter(|p| p.team == *piece)
-            .map(|p| Loc { row: p.r, col: p.c, depth: 0}).collect();
-        let mut visited: HashSet<(u8, u8)> = HashSet::new();
+            .map(|p| Loc { pos: p.pos.clone(), depth: 0}).collect();
 
         while let Some(curr) = vecdeq.pop_front() {
-            for next in self.queen_range(curr.row, curr.col) {
-                if !visited.contains(&next) {
-                    let loc = Loc { row: next.0, col: next.1, depth: curr.depth+1};
-                    distances[loc.row as usize * BOARD_SIZE as usize + loc.col as usize] = curr.depth + 1;
-                    visited.insert((loc.row, loc.col));
-                    vecdeq.push_back(loc);
+            for next in self.queen_range(&curr.pos) {
+                let place = &mut distances[next.to_linear(BOARD_SIZE)];
+                if *place == 0 {
+                    *place = curr.depth + 1;
+                    vecdeq.push_back(Loc { pos: next, depth: curr.depth+1});
                 }
             }
         }
