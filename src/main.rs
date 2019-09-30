@@ -20,6 +20,9 @@ fn max_move(board: &Board, piece: &Team, depth: i32, dist_state: &mut DistState)
     let mut score: i64 = i64::min_value();
     for m in board.successors(&piece){
         let b = board.with_move(&m);
+        if score == i64::min_value() && b.evaluate(piece, dist_state) < 0 {
+            continue;
+        }
 
         if let (Some(n), resp_score) = max_move(&b, &piece.other(), depth-1, dist_state) {
             if depth == DEBUG_DEPTH {
