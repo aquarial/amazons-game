@@ -46,12 +46,14 @@ pub struct Move {
 pub struct DistState {
     left: Vec<u8>,
     right: Vec<u8>,
+    next: VecDeque<(Pos, u8)>,
 }
 impl DistState {
     pub fn new() -> DistState {
         DistState {
             left: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
             right: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
+            next: VecDeque::new(),
         }
     }
 }
@@ -179,8 +181,8 @@ impl Board {
     }
 
     pub fn evaluate(&self, piece: &Team, dist_state: &mut DistState) -> i64 {
-        self.bfs(&piece, &mut dist_state.left);
-        self.bfs(&piece.other(), &mut dist_state.right);
+        self.bfs(&piece, &mut dist_state.next, &mut dist_state.left);
+        self.bfs(&piece.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
         for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
             if a < b {
@@ -192,24 +194,22 @@ impl Board {
         }
         return score;
     }
-    fn bfs(&self, piece: &Team, distances: &mut Vec<u8>) {
+    fn bfs(&self, piece: &Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
             distances[i] = 0;
         }
-        struct Loc {
-            pos: Pos,
-            depth: u8,
-        }
-        let mut vecdeq: VecDeque<Loc> = self.players.iter()
+        next.clear();
+        self.players.iter()
             .filter(|p| p.team == *piece)
-            .map(|p| Loc { pos: p.pos.clone(), depth: 0}).collect();
+            .map(|p| (p.pos.clone(), 0))
+            .for_each(|it| next.push_back(it));
 
-        while let Some(curr) = vecdeq.pop_front() {
-            for next in self.queen_range(&curr.pos) {
-                let place = &mut distances[next.to_linear(BOARD_SIZE)];
+        while let Some((pos,depth)) = next.pop_front() {
+            for neigh in self.queen_range(&pos) {
+                let place = &mut distances[neigh.to_linear(BOARD_SIZE)];
                 if *place == 0 {
-                    *place = curr.depth + 1;
-                    vecdeq.push_back(Loc { pos: next, depth: curr.depth+1});
+                    *place = depth + 1;
+                    next.push_back((neigh, depth+1));
                 }
             }
         }
