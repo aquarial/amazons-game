@@ -180,9 +180,9 @@ impl Board {
         return v;
     }
 
-    pub fn evaluate(&self, piece: &Team, dist_state: &mut DistState) -> i64 {
-        self.bfs(&piece, &mut dist_state.next, &mut dist_state.left);
-        self.bfs(&piece.other(), &mut dist_state.next, &mut dist_state.right);
+    pub fn evaluate(&self, team: &Team, dist_state: &mut DistState) -> i64 {
+        self.bfs(&team, &mut dist_state.next, &mut dist_state.left);
+        self.bfs(&team.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
         for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
             if a < b {
@@ -194,13 +194,13 @@ impl Board {
         }
         return score;
     }
-    fn bfs(&self, piece: &Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
+    fn bfs(&self, team: &Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
             distances[i] = 0;
         }
         next.clear();
         self.players.iter()
-            .filter(|p| p.team == *piece)
+            .filter(|p| p.team == *team)
             .map(|p| (p.pos, 0))
             .for_each(|it| next.push_back(it));
 
