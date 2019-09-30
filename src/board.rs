@@ -201,7 +201,7 @@ impl Board {
         next.clear();
         self.players.iter()
             .filter(|p| p.team == *piece)
-            .map(|p| (p.pos.clone(), 0))
+            .map(|p| (p.pos, 0))
             .for_each(|it| next.push_back(it));
 
         while let Some((pos,depth)) = next.pop_front() {
