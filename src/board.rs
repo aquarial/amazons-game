@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 
 const BOARD_SIZE: u8 = 8+2;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Team {
     White,
     Black,
@@ -18,7 +18,7 @@ impl Team {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Pos {
     pub row: u8,
     pub col: u8,
@@ -116,7 +116,7 @@ impl Board {
         }
         return s;
     }
-    fn queen_range(&self, r: u8, c: u8) -> Vec<(u8, u8)> {
+    fn queen_range(&self, pos: &Pos) -> Vec<Pos> {
         let mut v = Vec::new();
         for dx in -1 ..= 1 {
             for dy in -1 ..= 1 {
@@ -131,8 +131,9 @@ impl Board {
                     }
                 }
                 for dist in 1 .. {
-                    if !self.wall_at(offset(r, dy*dist), offset(c, dx*dist)) {
-                        v.push((offset(r, dy*dist), offset(c, dx*dist)));
+                    let place = Pos {row: offset(pos.row, dist*dy), col: offset(pos.col, dist*dx)};
+                    if !self.wall_at(&place) {
+                        v.push(place);
                     } else {
                         break;
                     }
@@ -162,17 +163,17 @@ impl Board {
             if p.team != *team {
                 continue;
             }
-            next.wall_set(p.r, p.c, false);
-            for (npr, npc) in next.queen_range(p.r, p.c) {
-                for (nsr, nsc) in next.queen_range(npr, npc) {
+            next.wall_set(&p.pos, false);
+            for np in next.queen_range(&p.pos) {
+                for ns in next.queen_range(&np) {
                     v.push(Move {
                         player: self.players[pi].clone(),
-                        new_pos: (npr, npc),
-                        new_shot: (nsr, nsc),
+                        new_pos: np,
+                        new_shot: ns,
                     });
                 }
             }
-            next.wall_set(p.r, p.c, true);
+            next.wall_set(&p.pos, true);
         }
         return v;
     }
