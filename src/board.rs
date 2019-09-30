@@ -27,6 +27,16 @@ impl Pos {
     pub fn to_linear(&self, num_cols: u8) -> usize {
        self.row as usize * num_cols as usize + self.col as usize
     }
+    fn offset(base: u8, offset: i8) -> u8 {
+        if offset < 0 {
+            base - (offset.abs() as u8)
+        } else{
+            base + (offset.abs() as u8)
+        }
+    }
+    pub fn with_offset(&self, dir: (i8, i8), dist: i8) -> Pos {
+        Pos { row: Pos::offset(self.row, dist*dir.0), col: Pos::offset(self.col, dist * dir.1)}
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -125,15 +135,8 @@ impl Board {
                 if dx == 0 && dy == 0 {
                     continue;
                 }
-                fn offset(base: u8, offset: i8) -> u8 {
-                    if offset < 0 {
-                        base - (offset.abs() as u8)
-                    } else {
-                        base + offset as u8
-                    }
-                }
                 for dist in 1 .. {
-                    let place = Pos {row: offset(pos.row, dist*dy), col: offset(pos.col, dist*dx)};
+                    let place = pos.with_offset((dy, dx), dist);
                     if !self.wall_at(&place) {
                         v.push(place);
                     } else {
