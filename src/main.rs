@@ -25,7 +25,7 @@ fn max_move(board: &Board, piece: &Team, depth: i32, dist_state: &mut DistState)
             if depth == DEBUG_DEPTH {
                 println!("Best response for {:?} after \n{} is \n{}", piece.other(), b.pprint(), b.with_move(&n).pprint());
             }
-            if score > -resp_score {
+            if score < -resp_score {
                 score = -resp_score;
                 best = Some(m);
             }
