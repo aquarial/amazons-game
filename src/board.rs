@@ -151,7 +151,7 @@ impl Board {
         let mut board = self.clone();
         for p in board.players.iter_mut() {
             if m.player == *p {
-                p.pos = m.new_pos.clone();
+                p.pos = m.new_pos;
                 break;
             }
         }
