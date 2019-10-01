@@ -7,10 +7,11 @@ use board::*;
 fn max_move(board: &Board, team: &Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
         let best = board.successors(&team).iter()
-            .map(|b| (b.clone(), b.evaluate(&team.other(), dist_state)))
-            .min_by_key(|it| it.1);
+            .map(|b| (b, b.evaluate(&team.other(), dist_state)))
+            .min_by_key(|it| it.1)
+            .map(|it| (it.0.clone(), it.1));
         if let Some((board, score)) = best {
-            return (Some(board.clone()), score);
+            return (Some(board), score);
         } else {
             return (None, i64::min_value());
         }
