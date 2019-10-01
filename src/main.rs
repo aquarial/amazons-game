@@ -6,11 +6,11 @@ use board::*;
 
 fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
-        let best = board.successors(team).iter()
-            .map(|b| (b, b.evaluate(team.other(), dist_state)))
-            .min_by_key(|it| it.1)
-            .map(|it| (it.0.clone(), it.1));
-        if let Some((board, score)) = best {
+        let best = board.successors(team)
+            .map(|b| (b.evaluate(team.other(), dist_state), b))
+            .min_by_key(|it| it.0)
+            .map(|it| (it.0, it.1.clone()));
+        if let Some((score, board)) = best {
             return (Some(board), score);
         } else {
             return (None, i64::min_value());
@@ -53,6 +53,15 @@ fn main() {
 
     println!("Start\n{}", b0.pprint());
     let b = max_move(&b0, team, DEBUG_DEPTH, &mut diststate);
-    println!("Board {:?}", b);
+    if let (Some(b1), _) = b {
+        println!("Best opening:");
+        println!("{}", b1.pprint());
+        println!();
+        let resp = max_move(&b1, team.other(), DEBUG_DEPTH-1, &mut diststate);
+        if let (Some(b2), _) = resp {
+            println!("Best response:");
+            println!("{}", b2.pprint());
+        }
+    }
 }
 

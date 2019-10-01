@@ -1,5 +1,4 @@
 use bv::BitVec;
-use std::collections::HashSet;
 use std::collections::VecDeque;
 
 const BOARD_SIZE: u8 = 8+2;
@@ -128,68 +127,12 @@ impl Board {
         }
         return s;
     }
-    fn queen_range(&self, pos: &Pos) -> Vec<Pos> {
-        let mut v = Vec::new();
-        for dx in -1 ..= 1 {
-            for dy in -1 ..= 1 {
-                if dx == 0 && dy == 0 {
-                    continue;
-                }
-                for dist in 1 .. {
-                    let place = pos.with_offset((dy, dx), dist);
-                    if !self.wall_at(place) {
-                        v.push(place);
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        return v;
-    }
-    pub fn with_move(&self, m: Move) -> Board {
-        let mut board = self.clone();
-        for p in board.players.iter_mut() {
-            if m.player == *p {
-                p.pos = m.new_pos;
-                break;
-            }
-        }
-        board.wall_set(m.player.pos, false);
-        board.wall_set(m.new_pos, true);
-        board.wall_set(m.new_shot, true);
-        return board;
-    }
-
-    pub fn successors(&self, team: Team) -> Vec<Board> {
-        let mut next = self.clone();
-        let mut v = Vec::new();
-        for (pi, p) in self.players.iter().enumerate() {
-            if p.team != team {
-                continue;
-            }
-            next.wall_set(p.pos, false);
-            for np in next.queen_range(&p.pos) {
-                for ns in next.queen_range(&np) {
-                    v.push(self.with_move(Move {
-                        player: self.players[pi].clone(),
-                        new_pos: np,
-                        new_shot: ns,
-                    }));
-                }
-            }
-            next.wall_set(p.pos, true);
-        }
-        return v;
-    }
-
-
 
     const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
                                       ( 0,-1)       ,( 0,1),
                                       ( 1,-1),( 1,0),( 1,1)];
 
-    fn iter_with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
+    fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
         board.wall_set(self.players[player_ix].pos, false);
         board.wall_set(pos, true);
@@ -198,18 +141,18 @@ impl Board {
         board
     }
 
-    fn iter_queen_range<'a>(&'a self, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
+    fn queen_range<'a>(&'a self, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
         Board::QUEEN_DIRS.iter().flat_map(move |dir|
                                    (1..).map(move |dist| from.with_offset(*dir, dist))
                                    .take_while(move |place| !self.wall_at(*place) || *place == blank))
     }
 
-    pub fn iter_successors<'a>(&'a self, team: Team) -> impl Iterator<Item = Board> + 'a {
+    pub fn successors<'a>(&'a self, team: Team) -> impl Iterator<Item = Board> + 'a {
         self.players.iter().enumerate().filter(move |(_,player)| player.team == team)
             .flat_map(move |(pi, player): (usize, &'a Player)| {
-                self.iter_queen_range(player.pos, player.pos).flat_map(move |pos: Pos| {
-                    self.iter_queen_range(pos, player.pos).map(move |shot: Pos| {
-                        self.iter_with_move(pi, pos, shot)
+                self.queen_range(player.pos, player.pos).flat_map(move |pos: Pos| {
+                    self.queen_range(pos, player.pos).map(move |shot: Pos| {
+                        self.with_move(pi, pos, shot)
                     })
                 })
             })
@@ -241,7 +184,7 @@ impl Board {
             .for_each(|it| next.push_back(it));
 
         while let Some((pos,depth)) = next.pop_front() {
-            for neigh in self.queen_range(&pos) {
+            for neigh in self.queen_range(pos, pos) {
                 let place = &mut distances[neigh.to_linear(BOARD_SIZE)];
                 if *place == 0 {
                     *place = depth + 1;
