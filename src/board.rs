@@ -68,43 +68,6 @@ impl DistState {
     }
 }
 
-struct MoveIter<'a> {
-    board: &'a Board,
-    team: Team,
-    player_ix: usize,
-    pos_iter: Option<Box<Iterator<Item = (Pos,Pos)> + 'a>>,
-    shot_iter: Option<Box<Iterator<Item = (Pos,Pos)> + 'a>>
-}
-//impl<'a> MoveIter<'a> {
-//    pub fn new(board: &'a Board, team: Team) -> MoveIter<'a> {
-//        MoveIter {
-//            board: board,
-//            team: team,
-//            player_ix: 0,
-//            pos_iter: None,
-//            shot_iter: None,
-//        }
-//    }
-//}
-//impl<'a> Iterator for MoveIter<'a> {
-//    type Item = Move;
-//    fn next(&mut self) -> Option<Move> {
-//        while self.player_ix < self.board.players.len() {
-//            if self.board.players[self.player_ix].team != self.team {
-//                self.player_ix += 1;
-//                continue;
-//            }
-//            if let Some(positer) = self.pos_iter {
-//
-//            } else {
-//                let play = self.board.players[self.player_ix];
-//                self.pos_iter = Some(self.board.iter_queen_range(play.pos, play.pos))
-//            }
-//        }
-//        return None;
-//    }
-//}
-
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
