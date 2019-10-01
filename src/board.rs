@@ -98,10 +98,10 @@ impl Board {
             players: players,
         };
     }
-    pub fn wall_set(&mut self, p: &Pos, val: bool) {
+    pub fn wall_set(&mut self, p: Pos, val: bool) {
         self.walls.set(p.to_linear(BOARD_SIZE) as u64, val);
     }
-    pub fn wall_at(&self, p: &Pos) -> bool {
+    pub fn wall_at(&self, p: Pos) -> bool {
         self.walls.get((p.to_linear(BOARD_SIZE)) as u64)
     }
     pub fn pprint(&self) -> String {
@@ -109,7 +109,7 @@ impl Board {
         for r in 0..BOARD_SIZE {
             for c in 0..BOARD_SIZE {
                 let pos = Pos { row: r, col: c};
-                if !self.wall_at(&pos) {
+                if !self.wall_at(pos) {
                     s.push('.');
                     continue;
                 }
@@ -137,7 +137,7 @@ impl Board {
                 }
                 for dist in 1 .. {
                     let place = pos.with_offset((dy, dx), dist);
-                    if !self.wall_at(&place) {
+                    if !self.wall_at(place) {
                         v.push(place);
                     } else {
                         break;
@@ -147,7 +147,7 @@ impl Board {
         }
         return v;
     }
-    pub fn with_move(&self, m: &Move) -> Board {
+    pub fn with_move(&self, m: Move) -> Board {
         let mut board = self.clone();
         for p in board.players.iter_mut() {
             if m.player == *p {
@@ -155,30 +155,30 @@ impl Board {
                 break;
             }
         }
-        board.wall_set(&m.player.pos, false);
-        board.wall_set(&m.new_pos, true);
-        board.wall_set(&m.new_shot, true);
+        board.wall_set(m.player.pos, false);
+        board.wall_set(m.new_pos, true);
+        board.wall_set(m.new_shot, true);
         return board;
     }
 
-    pub fn successors(&self, team: &Team) -> Vec<Board> {
+    pub fn successors(&self, team: Team) -> Vec<Board> {
         let mut next = self.clone();
         let mut v = Vec::new();
         for (pi, p) in self.players.iter().enumerate() {
-            if p.team != *team {
+            if p.team != team {
                 continue;
             }
-            next.wall_set(&p.pos, false);
+            next.wall_set(p.pos, false);
             for np in next.queen_range(&p.pos) {
                 for ns in next.queen_range(&np) {
-                    v.push(self.with_move(&Move {
+                    v.push(self.with_move(Move {
                         player: self.players[pi].clone(),
                         new_pos: np,
                         new_shot: ns,
                     }));
                 }
             }
-            next.wall_set(&p.pos, true);
+            next.wall_set(p.pos, true);
         }
         return v;
     }
@@ -220,9 +220,9 @@ impl Board {
     }  //.map(move |s: Pos| b.with_shot(&s)))
 
 
-    pub fn evaluate(&self, team: &Team, dist_state: &mut DistState) -> i64 {
-        self.bfs(&team, &mut dist_state.next, &mut dist_state.left);
-        self.bfs(&team.other(), &mut dist_state.next, &mut dist_state.right);
+    pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
+        self.bfs(team, &mut dist_state.next, &mut dist_state.left);
+        self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
         for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
             if a < b {
@@ -234,13 +234,13 @@ impl Board {
         }
         return score;
     }
-    fn bfs(&self, team: &Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
+    fn bfs(&self, team: Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
             distances[i] = 0;
         }
         next.clear();
         self.players.iter()
-            .filter(|p| p.team == *team)
+            .filter(|p| p.team == team)
             .map(|p| (p.pos, 0))
             .for_each(|it| next.push_back(it));
 
