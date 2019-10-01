@@ -189,35 +189,31 @@ impl Board {
                                       ( 0,-1)       ,( 0,1),
                                       ( 1,-1),( 1,0),( 1,1)];
 
-    fn iter_with_move(&self, player_ix: &usize, pos: &Pos) -> Board {
+    fn iter_with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
-        board.wall_set(&self.players[*player_ix].pos, false);
-        board.wall_set(&pos, true);
-        board.players[*player_ix].pos = *pos;
-        board
-    }
-    fn iter_with_shot(&self, pos: &Pos) -> Board {
-        let mut board = self.clone();
-        board.wall_set(&pos, true);
+        board.wall_set(self.players[player_ix].pos, false);
+        board.wall_set(pos, true);
+        board.wall_set(shot, true);
+        board.players[player_ix].pos = pos;
         board
     }
 
-    fn iter_queen_range<'a>(&'a self, pos: &'a Pos) -> impl Iterator<Item = (Pos,Pos)> + 'a {
+    fn iter_queen_range<'a>(&'a self, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
         Board::QUEEN_DIRS.iter().flat_map(move |dir|
-                                   (1..).map(move |dist| pos.with_offset(*dir, dist))
-                                   .take_while(move |place| !self.wall_at(&place))
-                                   .map(move |p| (*pos, p)))
+                                   (1..).map(move |dist| from.with_offset(*dir, dist))
+                                   .take_while(move |place| !self.wall_at(*place) || *place == blank))
     }
-    pub fn iter_successors<'a>(&'a self, team: &'a Team) -> impl Iterator<Item = (Pos,Pos)> + 'a {
-        self.players.iter().enumerate().filter(move |(_, play)| play.team == *team)
-            .flat_map(move |(pi, play): (usize, &'a Player)| {
-                self.iter_queen_range(&play.pos).map(move |mv: (Pos,Pos)| (self.iter_with_move(&pi, &mv.1), mv))
-                    .flat_map(move |(b, mv): (Board, (Pos,Pos))| {
-                        b.iter_queen_range(&mv.1)
+
+    pub fn iter_successors<'a>(&'a self, team: Team) -> impl Iterator<Item = Board> + 'a {
+        self.players.iter().enumerate().filter(move |(_,player)| player.team == team)
+            .flat_map(move |(pi, player): (usize, &'a Player)| {
+                self.iter_queen_range(player.pos, player.pos).flat_map(move |pos: Pos| {
+                    self.iter_queen_range(pos, player.pos).map(move |shot: Pos| {
+                        self.iter_with_move(pi, pos, shot)
                     })
-                //.flat_map(move |(b, pos):(Board,Pos)| b.queen_range(&pos))
+                })
             })
-    }  //.map(move |s: Pos| b.with_shot(&s)))
+    }
 
 
     pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
