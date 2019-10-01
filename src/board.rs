@@ -183,6 +183,19 @@ impl Board {
         return v;
     }
 
+
+
+    const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
+                                      ( 0,-1)       ,( 0,1),
+                                      ( 1,-1),( 1,0),( 1,1)];
+
+    fn queen_range_iter<'a>(&'a self, pos: &'a Pos) -> impl Iterator<Item = Pos> + 'a {
+        Board::QUEEN_DIRS.iter().flat_map(move |dir|
+                                   (1..).map(move |dist| pos.with_offset(*dir, dist))
+                                   .take_while(move |place| !self.wall_at(&place)))
+    }
+
+
     pub fn evaluate(&self, team: &Team, dist_state: &mut DistState) -> i64 {
         self.bfs(&team, &mut dist_state.next, &mut dist_state.left);
         self.bfs(&team.other(), &mut dist_state.next, &mut dist_state.right);
