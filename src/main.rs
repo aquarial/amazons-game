@@ -26,20 +26,19 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
             continue;
         }
 
-        if let (Some(n), resp_score) = max_move(&b, team.other(), depth-1, dist_state) {
-            if depth == DEBUG_DEPTH {
-                println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, n.pprint());
+        let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, dist_state);
+
+        if depth == DEBUG_DEPTH {
+            let mut s = "game over".to_string();
+            if let Some(n) = option_resp {
+                s = n.pprint();
             }
-            if score < -resp_score {
-                score = -resp_score;
-                best = Some(b);
-            }
-        } else {
-            if depth == DEBUG_DEPTH {
-                println!("Best response for {:?} after \n{} is \ngive up\n\n", team.other(), b.pprint());
-            }
+            println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
+        }
+
+        if score < -resp_score {
+            score = -resp_score;
             best = Some(b);
-            score = i64::max_value();
         }
     }
 
