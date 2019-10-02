@@ -53,8 +53,8 @@ fn main() {
 
     println!("Start\n{}", b0.pprint());
     let b = max_move(&b0, team, DEBUG_DEPTH, &mut diststate);
-    if let (Some(b1), _) = b {
-        println!("Best opening:");
+    if let (Some(b1), b1score) = b {
+        println!("Best opening for {} points:", b1score);
         println!("{}", b1.pprint());
         println!();
         let resp = max_move(&b1, team.other(), DEBUG_DEPTH-1, &mut diststate);
