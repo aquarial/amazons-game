@@ -28,7 +28,7 @@ fn max_move<R: Rng>(board: &Board, rng: &mut R, team: Team, depth: i32, dist_sta
     for b in board.successors(team){
         if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val {
             // can't do this in the end-game!
-            //continue;
+            continue;
         }
 
         let (option_resp, resp_score) = max_move(&b, rng, team.other(), depth-1, dist_state);
@@ -143,6 +143,7 @@ fn main() {
                 let mut line = String::new();
                 loop {
                     println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
+                    line.clear();
                     io::stdin().read_line(&mut line);
 
                     if let Some((p,m,s)) = parse_move(&line) {
