@@ -3,12 +3,16 @@ use std::collections::VecDeque;
 
 const BOARD_SIZE: u8 = 8+2;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Team {
     White,
     Black,
 }
 impl Team {
+    pub fn teams() -> Vec<Team> {
+        return vec![Team::White, Team::Black];
+    }
+
     pub fn other(&self) -> Team {
         match self {
             Team::White => Team::Black,
@@ -23,6 +27,18 @@ pub struct Pos {
     pub col: u8,
 }
 impl Pos {
+    pub fn in_a_line_with(&self, other: Pos) -> bool {
+        self.row.max(other.row) - self.row.min(other.row) == 0
+            || self.col.max(other.col) - self.col.min(other.col) == 0
+    }
+    pub fn dist_manhatten(&self, other: Pos) -> u8 {
+        (self.row.max(other.row) - self.row.min(other.row)) +
+            (self.col.max(other.col) - self.col.min(other.col))
+    }
+    pub fn allong_line(&self, other: Pos) -> Vec<Pos> {
+        let mut v = Vec::new();
+        return v;
+    }
     pub fn to_linear(&self, num_cols: u8) -> usize {
        self.row as usize * num_cols as usize + self.col as usize
     }
@@ -133,6 +149,15 @@ impl Board {
     const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
                                       ( 0,-1)       ,( 0,1),
                                       ( 1,-1),( 1,0),( 1,1)];
+
+    fn with_move_checked(&self, pos: Pos, mv: Pos, shot: Pos) -> Option<Board> {
+        if pos == mv || mv == shot || !pos.in_a_line_with(mv) || !mv.in_a_line_with(shot) {
+            return None;
+        }
+        if let Some((pi, play)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
+
+        }
+    }
 
     fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
