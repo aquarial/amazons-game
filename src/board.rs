@@ -224,7 +224,7 @@ impl Board {
         self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
         for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
-            if a <= b {
+            if a < b {
                 score = score + 1;
             }
             if a > b {
