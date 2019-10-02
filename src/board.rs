@@ -170,11 +170,11 @@ impl Board {
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) || !mv.in_a_line_with(shot) {
             return None;
         }
-        if !pos.along_line(mv).all(|p| self.wall_at(p))
-            && !mv.along_line(shot).all(|p| self.wall_at(p)) {
+        if !pos.along_line(mv).iter().all(|p| self.wall_at(*p))
+            && !mv.along_line(shot).iter().all(|p| self.wall_at(*p)) {
             return None;
         }
-        if let Some((pi, play)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
+        if let Some((pi, _)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
             return Some(self.with_move(pi, mv, shot));
         }
         return None;

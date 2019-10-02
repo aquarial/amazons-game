@@ -2,6 +2,8 @@
 mod board;
 
 use board::*;
+use std::collections::HashMap;
+use std::io;
 
 
 fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
@@ -45,58 +47,101 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
     return (best, score);
 }
 
-const DEBUG_DEPTH: i32 = 2;
+const DEBUG_DEPTH: i32 = 9000;
 
-fn alpha_to_row(c: char) -> Option<u8> {
+fn parse_num(c: char) -> Option<u8> {
     for (i,t) in "12345678".chars().enumerate() {
         if c == t {
-            return Some(i as u8);
+            return Some((i+1) as u8);
         }
     }
     for (i,t) in "abcdefgh".chars().enumerate() {
         if c == t {
-            return Some(i as u8);
+            return Some((i+1) as u8);
         }
     }
     return None;
 }
 
-fn record_move(s: &str) -> Result<Pos, String> {
-    let pos: Vec<Option<u8>> = s.chars().map(|c| c).map(alpha_to_row).collect();
-    if pos.len() != 2 {
-        return Err(format!("Wrong ix for {}", s));
+fn parse_pos(s: &str) -> Option<Pos> {
+    let pos: Vec<u8> = s.chars().map(parse_num).filter_map(|i| i).collect();
+    if pos.len() == 2 {
+        Some(Pos{row:pos[0], col:pos[1]})
+    } else {
+        None
     }
-    let r = match pos[0] {
-        Some(r0) => r0,
-        None => {
-            return Err(format!("Wrong row for {}", s));
-        }
-    };
-    let c = match pos[1] {
-        Some(c0) => c0,
-        None => {
-            return Err(format!("Wrong col for {}", s));
-        }
-    };
+}
 
-    Ok(Pos{row:r, col:c})
+fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
+    let vec: Vec<Pos> = s.to_lowercase().split(" ").map(parse_pos).filter_map(|i| i).collect();
+    if vec.len() == 3 {
+        Some((vec[0], vec[1], vec[2]))
+    } else {
+        None
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum Player {
+    Ai,
+    Human,
 }
 
 fn main() {
-    let b0 = Board::new();
-    let team = Team::White;
-    let mut diststate = DistState::new();
 
-    println!("Start\n{}", b0.pprint());
-    let b = max_move(&b0, team, DEBUG_DEPTH, &mut diststate);
-    if let (Some(b1), b1score) = b {
-        println!("Best opening for {} points:", b1score);
-        println!("{}", b1.pprint());
-        println!();
-        let resp = max_move(&b1, team.other(), DEBUG_DEPTH-1, &mut diststate);
-        if let (Some(b2), _) = resp {
-            println!("Best response:");
-            println!("{}", b2.pprint());
+    let depth = 2;
+
+    let mut input: HashMap<Team, Player> = HashMap::new();
+
+    for t in Team::teams() {
+        while input.get(&t) == None {
+            println!("{:?} is controlled by? [human, ai]", t);
+            let mut line = String::new();
+            io::stdin().read_line(&mut line);
+            if line == "ai" {
+                input.insert(t, Player::Ai);
+            }
+            if line == "human" {
+                input.insert(t, Player::Human);
+            }
+        }
+    }
+
+    let mut board = Board::new();
+    let mut team = Team::Black;
+    let mut diststate = DistState::new();
+    loop {
+        team = team.other();
+        let player = input[&team];
+        println!("{:?} to go, controlled by {:?}", team, player);
+        println!("{}", board.pprint());
+
+        match player {
+            Player::Ai => {
+                let next = max_move(&board, team, depth, &mut diststate);
+                if let (Some(b), _) = next {
+                    board = b;
+                } else {
+                    println!("Ai for team {:?} surrenders!", team);
+                    break;
+                }
+            },
+            Player::Human => {
+                if let (None, _) =  max_move(&board, team, 1, &mut diststate) {
+                    println!("Player for team {:?} has no moves and loses!", team);
+                    break;
+                }
+                let mut line = String::new();
+                loop {
+                    println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
+                    io::stdin().read_line(&mut line);
+
+                    if let Some((p,m,s)) = parse_move(&line) {
+
+                        }
+                    }
+                }
+            }
         }
     }
 }
