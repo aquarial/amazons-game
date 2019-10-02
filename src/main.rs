@@ -138,7 +138,6 @@ fn main() {
 
                     if let Some((p,m,s)) = parse_move(&line) {
 
-                        }
                     }
                 }
             }
