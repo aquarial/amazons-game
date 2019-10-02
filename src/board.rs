@@ -166,17 +166,23 @@ impl Board {
                                       ( 0,-1)       ,( 0,1),
                                       ( 1,-1),( 1,0),( 1,1)];
 
-    fn with_move_checked(&self, pos: Pos, mv: Pos, shot: Pos) -> Option<Board> {
+    pub fn with_move_checked(&self, pos: Pos, mv: Pos, shot: Pos) -> Option<Board> {
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) || !mv.in_a_line_with(shot) {
+            println!("Moves not in a line!");
             return None;
         }
-        if !pos.along_line(mv).iter().all(|p| self.wall_at(*p))
-            && !mv.along_line(shot).iter().all(|p| self.wall_at(*p)) {
+        if let Some(er) = pos.along_line(mv).iter().find(|&&p| self.wall_at(p)) {
+            println!("Already a piece at {:?}", er);
+            return None;
+        }
+        if let Some(er) = mv.along_line(shot).iter().find(|&&p| self.wall_at(p)) {
+            println!("Already a piece at {:?}", er);
             return None;
         }
         if let Some((pi, _)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
             return Some(self.with_move(pi, mv, shot));
         }
+        println!("Move not a player");
         return None;
     }
 

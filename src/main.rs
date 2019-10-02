@@ -98,20 +98,19 @@ fn main() {
             println!("{:?} is controlled by? [human, ai]", t);
             let mut line = String::new();
             io::stdin().read_line(&mut line);
-            if line == "ai" {
+            if line.trim() == "ai" {
                 input.insert(t, Player::Ai);
             }
-            if line == "human" {
+            if line.trim() == "human" {
                 input.insert(t, Player::Human);
             }
         }
     }
 
     let mut board = Board::new();
-    let mut team = Team::Black;
+    let mut team = Team::White;
     let mut diststate = DistState::new();
     loop {
-        team = team.other();
         let player = input[&team];
         println!("{:?} to go, controlled by {:?}", team, player);
         println!("{}", board.pprint());
@@ -121,6 +120,7 @@ fn main() {
                 let next = max_move(&board, team, depth, &mut diststate);
                 if let (Some(b), _) = next {
                     board = b;
+                    team = team.other();
                 } else {
                     println!("Ai for team {:?} surrenders!", team);
                     break;
@@ -137,7 +137,12 @@ fn main() {
                     io::stdin().read_line(&mut line);
 
                     if let Some((p,m,s)) = parse_move(&line) {
-
+                        println!("Parsed coords: {:?} {:?} {:?}", p, m, s);
+                        if let Some(b) = board.with_move_checked(p,m,s) {
+                            board = b;
+                            team = team.other();
+                            break;
+                        }
                     }
                 }
             }
