@@ -73,7 +73,7 @@ fn parse_pos(s: &str) -> Option<Pos> {
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
-    let vec: Vec<Pos> = s.to_lowercase().split(" ").map(parse_pos).filter_map(|i| i).collect();
+    let vec: Vec<Pos> = s.to_lowercase().trim().split(" ").map(parse_pos).filter_map(|i| i).collect();
     if vec.len() == 3 {
         Some((vec[0], vec[1], vec[2]))
     } else {
@@ -137,7 +137,6 @@ fn main() {
                     io::stdin().read_line(&mut line);
 
                     if let Some((p,m,s)) = parse_move(&line) {
-                        println!("Parsed coords: {:?} {:?} {:?}", p, m, s);
                         if let Some(b) = board.with_move_checked(p,m,s) {
                             board = b;
                             team = team.other();
