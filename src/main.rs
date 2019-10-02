@@ -17,11 +17,13 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
         }
     }
 
+    let starting_val = board.evaluate(team, dist_state);
+
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value();
     for b in board.successors(team){
-        if score != i64::min_value() && b.evaluate(team, dist_state) < 0 {
-            //continue;
+        if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val {
+            continue;
         }
 
         if let (Some(n), resp_score) = max_move(&b, team.other(), depth-1, dist_state) {
