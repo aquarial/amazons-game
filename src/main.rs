@@ -89,8 +89,6 @@ enum Player {
 }
 
 fn main() {
-    let depth = 2;
-
     let mut input: HashMap<Team, Player> = HashMap::new();
 
     for t in Team::teams() {
@@ -107,7 +105,6 @@ fn main() {
         }
     }
 
-    let mut rng = rand::thread_rng();
     let mut board = Board::new();
     let mut team = Team::White;
     let mut diststate = DistState::new();
@@ -118,7 +115,14 @@ fn main() {
 
         match player {
             Player::Ai => {
-                let next = max_move(&board, &mut rng, team, depth, &mut diststate);
+                let succs = board.successors(team).count();
+                let depth = match succs {
+                    0...9 => 4,
+                    10...139 => 3,
+                    _ => 2,
+                };
+                println!("Choosing among {} moves with {} depth", succs, depth);
+                let next = max_move(&board, team, depth, &mut diststate);
                 if let (Some(b), _) = next {
                     board = b;
                     team = team.other();
@@ -128,7 +132,7 @@ fn main() {
                 }
             },
             Player::Human => {
-                if let (None, _) =  max_move(&board, &mut rng, team, 1, &mut diststate) {
+                if let (None, _) =  max_move(&board, team, 1, &mut diststate) {
                     println!("Player for team {:?} has no moves and loses!", team);
                     break;
                 }
