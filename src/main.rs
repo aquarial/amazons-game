@@ -1,13 +1,12 @@
 
 mod board;
 
-use rand::Rng;
 use board::*;
 use std::collections::HashMap;
 use std::io;
 
 
-fn max_move<R: Rng>(board: &Board, rng: &mut R, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
+fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
         let best = board.successors(team)
             .map(|b| (b.evaluate(team, dist_state), b))
@@ -21,17 +20,16 @@ fn max_move<R: Rng>(board: &Board, rng: &mut R, team: Team, depth: i32, dist_sta
     }
 
     let starting_val = board.evaluate(team, dist_state);
-    let mut choices: f32 = 1.0;
 
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value();
     for b in board.successors(team){
-        if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val {
+        if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
             // can't do this in the end-game!
-            continue;
+            //continue;
         }
 
-        let (option_resp, resp_score) = max_move(&b, rng, team.other(), depth-1, dist_state);
+        let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, dist_state);
 
         if depth == DEBUG_DEPTH {
             let mut s = "game over".to_string();
@@ -41,13 +39,7 @@ fn max_move<R: Rng>(board: &Board, rng: &mut R, team: Team, depth: i32, dist_sta
             println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
         }
 
-        if score == -resp_score {
-            let r: f32 = rng.gen_range(0.0, 1.0);
-            if r < 1.0 / choices {
-                best = Some(b);
-            }
-            choices += 1.0;
-        } else if score < -resp_score {
+        if score < -resp_score {
             score = -resp_score;
             best = Some(b);
         }
