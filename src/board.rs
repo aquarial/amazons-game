@@ -85,10 +85,12 @@ impl Board {
         }
 
         let mut players = Vec::new();
-        players.push(Player{ team:Team::White, pos:Pos {row: 3, col: 3} });
-        players.push(Player{ team:Team::White, pos:Pos {row: 3, col: 6} });
-        players.push(Player{ team:Team::Black, pos:Pos {row: 6, col: 3} });
-        players.push(Player{ team:Team::Black, pos:Pos {row: 6, col: 6} });
+        let ix0 = 3;
+        let ix1 = 6;
+        players.push(Player{ team:Team::White, pos:Pos {row: ix0, col: ix0} });
+        players.push(Player{ team:Team::White, pos:Pos {row: ix0, col: ix1} });
+        players.push(Player{ team:Team::Black, pos:Pos {row: ix1, col: ix0} });
+        players.push(Player{ team:Team::Black, pos:Pos {row: ix1, col: ix1} });
         for p in &players {
             b.set(p.pos.to_linear(BOARD_SIZE) as u64, true);
         }
