@@ -28,8 +28,10 @@ pub struct Pos {
 }
 impl Pos {
     pub fn in_a_line_with(&self, other: Pos) -> bool {
-        self.row.max(other.row) - self.row.min(other.row) == 0
-            || self.col.max(other.col) - self.col.min(other.col) == 0
+        let dr = self.row.max(other.row) - self.row.min(other.row);
+        let dc = self.col.max(other.col) - self.col.min(other.col);
+
+        dr == 0 || dc == 0 || dr == dc
     }
     pub fn dist_manhatten(&self, other: Pos) -> u8 {
         (self.row.max(other.row) - self.row.min(other.row)) +
@@ -175,7 +177,7 @@ impl Board {
             println!("Already a piece at {:?}", er);
             return None;
         }
-        if let Some(er) = mv.along_line(shot).iter().find(|&&p| self.wall_at(p)) {
+        if let Some(er) = mv.along_line(shot).iter().filter(|&&p| p != mv).find(|&&p| self.wall_at(p)) {
             println!("Already a piece at {:?}", er);
             return None;
         }

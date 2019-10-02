@@ -143,6 +143,8 @@ fn main() {
                             team = team.other();
                             break;
                         }
+                    } else {
+                        println!("Could not parse coords");
                     }
                 }
             }
