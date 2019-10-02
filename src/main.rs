@@ -7,8 +7,8 @@ use board::*;
 fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
         let best = board.successors(team)
-            .map(|b| (b.evaluate(team.other(), dist_state), b))
-            .min_by_key(|it| it.0)
+            .map(|b| (b.evaluate(team, dist_state), b))
+            .max_by_key(|it| it.0)
             .map(|it| (it.0, it.1.clone()));
         if let Some((score, board)) = best {
             return (Some(board), score);
@@ -21,12 +21,12 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
     let mut score: i64 = i64::min_value();
     for b in board.successors(team){
         if score != i64::min_value() && b.evaluate(team, dist_state) < 0 {
-            continue;
+            //continue;
         }
 
         if let (Some(n), resp_score) = max_move(&b, team.other(), depth-1, dist_state) {
             if depth == DEBUG_DEPTH {
-                println!("Best response for {:?} after \n{} is \n{}", team.other(), b.pprint(), n.pprint());
+                println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, n.pprint());
             }
             if score < -resp_score {
                 score = -resp_score;
