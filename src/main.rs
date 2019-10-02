@@ -47,6 +47,41 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
 
 const DEBUG_DEPTH: i32 = 2;
 
+fn alpha_to_row(c: char) -> Option<u8> {
+    for (i,t) in "12345678".chars().enumerate() {
+        if c == t {
+            return Some(i as u8);
+        }
+    }
+    for (i,t) in "abcdefgh".chars().enumerate() {
+        if c == t {
+            return Some(i as u8);
+        }
+    }
+    return None;
+}
+
+fn record_move(s: &str) -> Result<Pos, String> {
+    let pos: Vec<Option<u8>> = s.chars().map(|c| c).map(alpha_to_row).collect();
+    if pos.len() != 2 {
+        return Err(format!("Wrong ix for {}", s));
+    }
+    let r = match pos[0] {
+        Some(r0) => r0,
+        None => {
+            return Err(format!("Wrong row for {}", s));
+        }
+    };
+    let c = match pos[1] {
+        Some(c0) => c0,
+        None => {
+            return Err(format!("Wrong col for {}", s));
+        }
+    };
+
+    Ok(Pos{row:r, col:c})
+}
+
 fn main() {
     let b0 = Board::new();
     let team = Team::White;
