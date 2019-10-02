@@ -35,8 +35,24 @@ impl Pos {
         (self.row.max(other.row) - self.row.min(other.row)) +
             (self.col.max(other.col) - self.col.min(other.col))
     }
-    pub fn allong_line(&self, other: Pos) -> Vec<Pos> {
+    pub fn along_line(&self, other: Pos) -> Vec<Pos> {
         let mut v = Vec::new();
+        let mut walk = self.clone();
+        while walk != other {
+            if walk.col < other.col {
+                walk.col += 1;
+            }
+            if walk.col > other.col {
+                walk.col -= 1;
+            }
+            if walk.row < other.row {
+                walk.row += 1;
+            }
+            if walk.row > other.row {
+                walk.row -= 1;
+            }
+            v.push(walk);
+        }
         return v;
     }
     pub fn to_linear(&self, num_cols: u8) -> usize {
@@ -154,9 +170,14 @@ impl Board {
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) || !mv.in_a_line_with(shot) {
             return None;
         }
-        if let Some((pi, play)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
-
+        if !pos.along_line(mv).all(|p| self.wall_at(p))
+            && !mv.along_line(shot).all(|p| self.wall_at(p)) {
+            return None;
         }
+        if let Some((pi, play)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
+            return Some(self.with_move(pi, mv, shot));
+        }
+        return None;
     }
 
     fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
