@@ -5,14 +5,27 @@ use board::*;
 use std::collections::HashMap;
 use std::io;
 
+fn top_n<V>(count: usize, eval: fn(&V) -> i64,  iter: impl Iterator<Item = V>) -> Vec<V> {
+    let mut vec: Vec<(i64, V)> = Vec::with_capacity(101);
+
+    iter.map(|v| (eval(&v), v)).for_each(|new| {
+        match vec.binary_search_by_key(&new.0, |a| a.0) {
+            Ok(i) => vec.insert(i, new),
+            Err(i) => vec.insert(i, new),
+        }
+        vec.truncate(count)
+    });
+
+    return vec.into_iter().map(|(_,v)| v).collect();
+}
 
 fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
         let best = board.successors(team)
             .map(|b| (b.evaluate(team, dist_state), b))
             .max_by_key(|it| it.0)
-            .map(|it| (it.0, it.1.clone()));
-        if let Some((score, board)) = best {
+            .map(|it| (it.1.clone(), it.0));
+        if let Some((board, score)) = best {
             return (Some(board), score);
         } else {
             return (None, i64::min_value());
