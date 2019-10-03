@@ -5,11 +5,11 @@ use board::*;
 use std::collections::HashMap;
 use std::io;
 
-fn top_n<V>(count: usize, eval: fn(&V) -> i64,  iter: impl Iterator<Item = V>) -> Vec<V> {
+fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<V> {
     let mut vec: Vec<(i64, V)> = Vec::with_capacity(101);
 
-    iter.map(|v| (eval(&v), v)).for_each(|new| {
-        match vec.binary_search_by_key(&new.0, |a| a.0) {
+    iter.for_each(|new| {
+        match vec.binary_search_by_key(& -new.0, |a| -a.0) {
             Ok(i) => vec.insert(i, new),
             Err(i) => vec.insert(i, new),
         }
@@ -32,15 +32,14 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
         }
     }
 
-    let starting_val = board.evaluate(team, dist_state);
-
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value();
-    for b in board.successors(team){
-        if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
-            // can't do this in the end-game!
-            //continue;
-        }
+    // get the 100 best moves into a vector?
+    for b in top_n(5, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
+        //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
+        //    // can't do this in the end-game!
+        //    //continue;
+        //}
 
         let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, dist_state);
 
@@ -129,11 +128,7 @@ fn main() {
         match player {
             Player::Ai => {
                 let succs = board.successors(team).count();
-                let depth = match succs {
-                    0...9 => 4,
-                    10...139 => 3,
-                    _ => 2,
-                };
+                let depth = 5;
                 println!("Choosing among {} moves with {} depth", succs, depth);
                 let next = max_move(&board, team, depth, &mut diststate);
                 if let (Some(b), _) = next {
