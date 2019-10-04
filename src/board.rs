@@ -235,7 +235,7 @@ impl Board {
     }
     fn bfs(&self, team: Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
-            distances[i] = 0;
+            distances[i] = u8::max_value();
         }
         next.clear();
         self.players.iter()
@@ -246,7 +246,7 @@ impl Board {
         while let Some((pos,depth)) = next.pop_front() {
             for neigh in self.queen_range(pos, pos) {
                 let place = &mut distances[neigh.to_linear(BOARD_SIZE)];
-                if *place == 0 {
+                if depth + 1 < *place {
                     *place = depth + 1;
                     next.push_back((neigh, depth+1));
                 }
