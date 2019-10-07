@@ -35,7 +35,7 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value();
     // get the 100 best moves into a vector?
-    for b in top_n(5, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
+    for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
         //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
         //    // can't do this in the end-game!
         //    //continue;
@@ -128,7 +128,7 @@ fn main() {
         match player {
             Player::Ai => {
                 let succs = board.successors(team).count();
-                let depth = 5;
+                let depth = 4;
                 println!("Choosing among {} moves with {} depth", succs, depth);
                 let next = max_move(&board, team, depth, &mut diststate);
                 if let (Some(b), _) = next {
