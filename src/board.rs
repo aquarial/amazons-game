@@ -223,13 +223,26 @@ impl Board {
         self.bfs(team, &mut dist_state.next, &mut dist_state.left);
         self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
+        let mut is_end = true;
         for (a,b) in dist_state.left.iter().zip(dist_state.right.iter()) {
             if a < b {
-                score = score + 1;
+                score = score + 2;
             }
             if a > b {
+                score = score - 2;
+            }
+            if a == b {
                 score = score - 1;
             }
+            if *a != u8::max_value() && *b != u8::max_value() {
+                is_end = false;
+            }
+        }
+        if is_end {
+            if score >= 0 {
+                return i64::max_value();
+            }
+            return i64::min_value();
         }
         return score;
     }
