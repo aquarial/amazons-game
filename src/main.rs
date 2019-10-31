@@ -1,7 +1,8 @@
 
-mod board;
+mod solver;
 
-use board::*;
+use solver::board::*;
+
 use std::collections::HashMap;
 use std::io;
 
