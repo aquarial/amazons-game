@@ -36,6 +36,12 @@ impl Amazons {
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
         let board = self.boards[self.boards.len() - 1].clone();
 
+        for coord in vec![pos, mv, shot] {
+            if coord.row >= self.board_size || coord.col >= self.board_size {
+                println!("Coord {:?} is outside board_size ({}, {})", coord,
+                         self.board_size, self.board_size);
+            }
+        }
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) {
             println!("Moves not in a line!");
             return false;
