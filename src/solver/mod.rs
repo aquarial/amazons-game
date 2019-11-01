@@ -19,11 +19,9 @@ impl Amazons {
         players.push(Player{ team:Team::Black, pos:Pos {row:  6, col:  3} });
         players.push(Player{ team:Team::Black, pos:Pos {row:  6, col:  6} });
 
-        let mut board = Board::new(board_size, players);
-
         Amazons {
             board_size: board_size,
-            boards: vec![board],
+            boards: vec![Board::new(board_size, players)],
             cache: vec![DistState::new(board_size)],
         }
     }
