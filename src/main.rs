@@ -43,7 +43,7 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
 
         let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, dist_state);
 
-        if depth == DEBUG_DEPTH {
+        if depth >= DEBUG_DEPTH {
             let mut s = "game over".to_string();
             if let Some(n) = option_resp {
                 s = n.pprint();
