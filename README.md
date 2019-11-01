@@ -12,16 +12,15 @@ performed for both teams, the score is based on how many squares the team can
 get to in fewer moves than the opponent.
 
 The AI has some interesting quirks. I have been soundly beaten in the mid-game,
-but it has a tendency to blunder the end game. I know there are some bugs in
-the win-condition for the endgame because AI-AI battles record the wrong team
-winning.
+but it has a tendency to blunder the end game. 
 
 The UI is limited, but functional. Some improvements I'm considering:
 
-* 'undo' command to go back a turn
-* 'ai' command to let the ai play for you one turn
+* 'help command to list available commands
+* Better cli printing to mention other available commands
 * See the heuristic evaluation score for each board position
-* Alternate move input methods
+* Alternate move input methods (TUI?)
+* Multi-threaded AI
 
 ```
 $ cargo run --release
