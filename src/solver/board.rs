@@ -104,7 +104,7 @@ impl DistState {
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
-    players: Vec<Player>,
+    pub players: Vec<Player>,
 }
 
 impl Board {
@@ -161,31 +161,7 @@ impl Board {
                                       ( 0,-1)       ,( 0,1),
                                       ( 1,-1),( 1,0),( 1,1)];
 
-    pub fn with_move_checked(&self, pos: Pos, mv: Pos, shot: Pos) -> Option<Board> {
-        if pos == mv || mv == shot || !pos.in_a_line_with(mv) {
-            println!("Moves not in a line!");
-            return None;
-        }
-        if !mv.in_a_line_with(shot) {
-            println!("Shoot is not in a line!");
-            return None;
-        }
-        if let Some(er) = pos.along_line(mv).iter().find(|&&p| self.wall_at(p)) {
-            println!("Already a piece at {:?}", er);
-            return None;
-        }
-        if let Some(er) = mv.along_line(shot).iter().filter(|&&p| p != pos).find(|&&p| self.wall_at(p)) {
-            println!("Already a piece at {:?}", er);
-            return None;
-        }
-        if let Some((pi, _)) = self.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
-            return Some(self.with_move(pi, mv, shot));
-        }
-        println!("Move not a player");
-        return None;
-    }
-
-    fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
+    pub fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
         board.wall_set(self.players[player_ix].pos, false);
         board.wall_set(pos, true);
