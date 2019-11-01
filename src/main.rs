@@ -32,7 +32,7 @@ fn parse_pos(s: &str) -> Option<Pos> {
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
-    let vec: Vec<Pos> = s.to_lowercase().trim().split(" ").map(parse_pos).filter_map(|i| i).collect();
+    let vec: Vec<Pos> = s.to_lowercase().split(" ").map(parse_pos).filter_map(|i| i).collect();
     if vec.len() == 3 {
         Some((vec[0], vec[1], vec[2]))
     } else {
@@ -85,20 +85,29 @@ fn main() {
                 }
             },
             Player::Human => {
-                let mut line = String::new();
+                let mut buffer = String::new();
                 loop {
                     println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
-                    line.clear();
-                    io::stdin().read_line(&mut line);
+                    buffer.clear();
+                    io::stdin().read_line(&mut buffer);
+                    let input = buffer.trim();
 
-                    if line.trim() == "ai" {
+                    println!("Buffer= {}", input);
+
+                    if input == "ai" {
                         amazons.ai_move(team);
                         team = team.other();
                         break;
-                    } else if line.trim() == "undo" {
+                    } else if input == "pieces" {
+                        println!("Team {:?} has the following pieces:", team);
+                        for p in amazons.team_pieces(team) {
+                            println!("    {:?}", p);
+                        }
+                        println!();
+                    } else if input == "undo" {
                         amazons.undo_2_move();
                         break;
-                    } else if let Some((p,m,s)) = parse_move(&line) {
+                    } else if let Some((p,m,s)) = parse_move(input) {
                         amazons.player_move(team, p, m, s);
                         team = team.other();
                         break;
