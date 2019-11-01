@@ -33,10 +33,6 @@ impl Pos {
 
         dr == 0 || dc == 0 || dr == dc
     }
-    pub fn dist_manhatten(&self, other: Pos) -> u8 {
-        (self.row.max(other.row) - self.row.min(other.row)) +
-            (self.col.max(other.col) - self.col.min(other.col))
-    }
     pub fn along_line(&self, other: Pos) -> Vec<Pos> {
         let mut v = Vec::new();
         let mut walk = self.clone();
