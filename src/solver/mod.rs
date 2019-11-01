@@ -93,13 +93,57 @@ struct Solver {
 
 impl Solver {
     fn max_move(&mut self, team: Team, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
-        let best = self.board.successors(team)
-            .map(|b| (b.evaluate(team, cache), b))
-            .max_by_key(|it| it.0);
-        if let Some((score, board)) = best {
-            return (Some(board), score);
-        } else {
-            return (None, i64::min_value() + 1);
+        if depth <= 1 {
+            let best = board.successors(team)
+                .map(|b| (b.evaluate(team, dist_state), b))
+                .max_by_key(|it| it.0);
+            if let Some((score, board)) = best {
+                return (Some(board), score);
+            } else {
+                return (None, i64::min_value() + 1);
+            }
         }
+
+        let mut best: Option<Board> = None;
+        let mut score: i64 = i64::min_value() + 1;
+        // get the 100 best moves into a vector?
+        for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
+            //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
+            //    // can't do this in the end-game!
+            //    //continue;
+            //}
+
+            let (option_resp, resp_score) = self.max_move(&b, team.other(), depth-1, dist_state);
+
+            //if depth >= DEBUG_DEPTH {
+            //    let mut s = "game over".to_string();
+            //    if let Some(n) = option_resp {
+            //        s = n.pprint();
+            //    }
+            //    println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
+            //}
+
+            if score < -resp_score {
+                score = -resp_score;
+                best = Some(b);
+            }
+        }
+
+        return (best, score);
     }
 }
+
+fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<V> {
+    let mut vec: Vec<(i64, V)> = Vec::with_capacity(101);
+
+    iter.for_each(|new| {
+        match vec.binary_search_by_key(& -new.0, |a| -a.0) {
+            Ok(i) => vec.insert(i, new),
+            Err(i) => vec.insert(i, new),
+        }
+        vec.truncate(count)
+    });
+
+    return vec.into_iter().map(|(_,v)| v).collect();
+}
+
