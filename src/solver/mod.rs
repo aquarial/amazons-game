@@ -28,6 +28,13 @@ impl Amazons {
         }
     }
 
+    pub fn undo_2_move(&mut self) {
+        if self.boards.len() >= 3 {
+            self.boards.pop();
+            self.boards.pop();
+        }
+    }
+
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
         let board = self.boards[self.boards.len() - 1].clone();
 
