@@ -67,9 +67,8 @@ impl Amazons {
     pub fn ai_move(&mut self, team: Team) -> bool {
         // TODO Multi-threading based on # of caches
         let c0 = &mut self.cache[0];
-        let board = self.boards[self.boards.len() - 1].clone();
-        let mut s = Solver { board_size: self.board_size, board: board};
-        return match s.max_move(team, 1, c0) {
+        let board = &self.boards[self.boards.len() - 1];
+        return match max_move(&board, team, 1, c0) {
             (Some(b), _) => {
                 self.boards.push(b);
                 true
@@ -85,52 +84,44 @@ impl Amazons {
     }
 }
 
-
-struct Solver {
-    board_size: u8,
-    board: Board,
-}
-
-impl Solver {
-    fn max_move(&mut self, team: Team, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
-        if depth <= 1 {
-            let best = board.successors(team)
-                .map(|b| (b.evaluate(team, dist_state), b))
-                .max_by_key(|it| it.0);
-            if let Some((score, board)) = best {
-                return (Some(board), score);
-            } else {
-                return (None, i64::min_value() + 1);
-            }
+fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
+    if depth <= 1 {
+        let best = board.successors(team)
+            .map(|b| (b.evaluate(team, cache), b))
+            .max_by_key(|it| it.0);
+        if let Some((score, board)) = best {
+            return (Some(board), score);
+        } else {
+            return (None, i64::min_value() + 1);
         }
-
-        let mut best: Option<Board> = None;
-        let mut score: i64 = i64::min_value() + 1;
-        // get the 100 best moves into a vector?
-        for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
-            //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
-            //    // can't do this in the end-game!
-            //    //continue;
-            //}
-
-            let (option_resp, resp_score) = self.max_move(&b, team.other(), depth-1, dist_state);
-
-            //if depth >= DEBUG_DEPTH {
-            //    let mut s = "game over".to_string();
-            //    if let Some(n) = option_resp {
-            //        s = n.pprint();
-            //    }
-            //    println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
-            //}
-
-            if score < -resp_score {
-                score = -resp_score;
-                best = Some(b);
-            }
-        }
-
-        return (best, score);
     }
+
+    let mut best: Option<Board> = None;
+    let mut score: i64 = i64::min_value() + 1;
+
+    for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
+        //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
+        //    // can't do this in the end-game!
+        //    //continue;
+        //}
+
+        let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, cache);
+
+        //if depth >= DEBUG_DEPTH {
+        //    let mut s = "game over".to_string();
+        //    if let Some(n) = option_resp {
+        //        s = n.pprint();
+        //    }
+        //    println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
+        //}
+
+        if score < -resp_score {
+            score = -resp_score;
+            best = Some(b);
+        }
+    }
+
+    return (best, score);
 }
 
 fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<V> {
