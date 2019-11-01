@@ -92,8 +92,6 @@ fn main() {
                     io::stdin().read_line(&mut buffer);
                     let input = buffer.trim();
 
-                    println!("Buffer= {}", input);
-
                     if input == "ai" {
                         amazons.ai_move(team);
                         team = team.other();
@@ -101,7 +99,7 @@ fn main() {
                     } else if input == "pieces" {
                         println!("Team {:?} has the following pieces:", team);
                         for p in amazons.team_pieces(team) {
-                            println!("    {:?}", p);
+                            println!("    {}{}", p.row, p.col);
                         }
                         println!();
                     } else if input == "undo" {

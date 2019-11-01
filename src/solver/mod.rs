@@ -36,7 +36,8 @@ impl Amazons {
     pub fn team_pieces(&self, team: Team) -> Vec<Pos> {
         self.boards[self.boards.len() - 1].players.iter()
             .filter(|p| p.team == team)
-            .map(|p| p.pos).collect()
+            .map(|p| p.pos)
+            .collect()
     }
 
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
