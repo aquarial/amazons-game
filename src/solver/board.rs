@@ -94,8 +94,8 @@ pub struct DistState {
 impl DistState {
     pub fn new(board_size: u8) -> DistState {
         DistState {
-            left: vec![u8::max_value(); (board_size * board_size) as usize],
-            right: vec![u8::max_value(); (board_size * board_size) as usize],
+            left: vec![0; (board_size * board_size) as usize],
+            right: vec![0; (board_size * board_size) as usize],
             next: VecDeque::new(),
         }
     }
