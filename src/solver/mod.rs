@@ -109,15 +109,7 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
         //    //continue;
         //}
 
-        let (option_resp, resp_score) = max_move(&b, team.other(), depth-1, cache);
-
-        //if depth >= DEBUG_DEPTH {
-        //    let mut s = "game over".to_string();
-        //    if let Some(n) = option_resp {
-        //        s = n.pprint();
-        //    }
-        //    println!("{:?} went \n{}  \n{:?} got {} with \n{}\n\n", team, b.pprint(), team.other(), resp_score, s);
-        //}
+        let (_, resp_score) = max_move(&b, team.other(), depth-1, cache);
 
         if score < -resp_score {
             score = -resp_score;
