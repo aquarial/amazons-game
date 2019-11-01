@@ -28,12 +28,12 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
         if let Some((score, board)) = best {
             return (Some(board), score);
         } else {
-            return (None, i64::min_value());
+            return (None, i64::min_value() + 1);
         }
     }
 
     let mut best: Option<Board> = None;
-    let mut score: i64 = i64::min_value();
+    let mut score: i64 = i64::min_value() + 1;
     // get the 100 best moves into a vector?
     for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, dist_state), i))) {
         //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {

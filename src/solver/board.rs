@@ -242,7 +242,7 @@ impl Board {
             if score >= 0 {
                 return i64::max_value();
             }
-            return i64::min_value();
+            return i64::min_value() + 1;
         }
         return score;
     }
