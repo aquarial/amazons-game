@@ -28,7 +28,7 @@ impl Amazons {
         }
     }
 
-    pub fn player_move(&mut self, pos: Pos, mv: Pos, shot: Pos) -> bool {
+    pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
         let board = self.boards[self.boards.len() - 1].clone();
 
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) {
@@ -48,10 +48,12 @@ impl Amazons {
             return false;
         }
         if let Some((pi, _)) = board.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
-            self.boards.push(board.with_move(pi, mv, shot));
-            return true;
+            if board.players[pi].team == team {
+                self.boards.push(board.with_move(pi, mv, shot));
+                return true;
+            }
         }
-        println!("Move not a player");
+        println!("You don't have a piece at the position");
         return false;
     }
 }
