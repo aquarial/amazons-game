@@ -56,4 +56,31 @@ impl Amazons {
         println!("You don't have a piece at the position");
         return false;
     }
+
+    pub fn ai_move(&mut self, team: Team) -> (Option<Board>, i64){
+        // TODO Multi-threading based on # of caches
+        let c0 = &mut self.cache[0];
+        let board = self.boards[self.boards.len() - 1].clone();
+        let mut s = Solver { board_size: self.board_size, board: board};
+        return s.max_move(team, 1, c0);
+    }
+}
+
+
+struct Solver {
+    board_size: u8,
+    board: Board,
+}
+
+impl Solver {
+    fn max_move(&mut self, team: Team, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
+        let best = self.board.successors(team)
+            .map(|b| (b.evaluate(team, cache), b))
+            .max_by_key(|it| it.0);
+        if let Some((score, board)) = best {
+            return (Some(board), score);
+        } else {
+            return (None, i64::min_value() + 1);
+        }
+    }
 }
