@@ -64,12 +64,24 @@ impl Amazons {
         return false;
     }
 
-    pub fn ai_move(&mut self, team: Team) -> (Option<Board>, i64){
+    pub fn ai_move(&mut self, team: Team) -> bool {
         // TODO Multi-threading based on # of caches
         let c0 = &mut self.cache[0];
         let board = self.boards[self.boards.len() - 1].clone();
         let mut s = Solver { board_size: self.board_size, board: board};
-        return s.max_move(team, 1, c0);
+        return match s.max_move(team, 1, c0) {
+            (Some(b), _) => {
+                self.boards.push(b);
+                true
+            }
+            (None, _) => {
+                false
+            }
+        }
+    }
+
+    pub fn curr_board(&self) -> &Board {
+        return &self.boards[self.boards.len() - 1];
     }
 }
 
