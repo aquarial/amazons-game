@@ -24,9 +24,8 @@ fn max_move(board: &Board, team: Team, depth: i32, dist_state: &mut DistState) -
     if depth <= 1 {
         let best = board.successors(team)
             .map(|b| (b.evaluate(team, dist_state), b))
-            .max_by_key(|it| it.0)
-            .map(|it| (it.1.clone(), it.0));
-        if let Some((board, score)) = best {
+            .max_by_key(|it| it.0);
+        if let Some((score, board)) = best {
             return (Some(board), score);
         } else {
             return (None, i64::min_value());
