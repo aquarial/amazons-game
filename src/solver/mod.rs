@@ -40,11 +40,11 @@ impl Amazons {
             return false;
         }
         if let Some(er) = pos.along_line(mv).iter().find(|&&p| board.wall_at(p)) {
-            println!("Already a piece at {:?}", er);
+            println!("Can't move through piece at {:?}", er);
             return false;
         }
         if let Some(er) = mv.along_line(shot).iter().filter(|&&p| p != pos).find(|&&p| board.wall_at(p)) {
-            println!("Already a piece at {:?}", er);
+            println!("Can't place token through piece at {:?}", er);
             return false;
         }
         if let Some((pi, _)) = board.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
