@@ -1,6 +1,7 @@
 
 mod solver;
 
+use solver::*;
 use solver::board::*;
 
 use std::collections::HashMap;
@@ -117,45 +118,45 @@ fn main() {
         }
     }
 
-    let mut board = Board::new();
+    //let solver = Solver::new_8x8();
+    let mut amazons = Amazons::new_8x8();
     let mut team = Team::White;
-    let mut diststate = DistState::new();
+
     loop {
         let player = input[&team];
         println!("{:?} to go, controlled by {:?}", team, player);
-        println!("{}", board.pprint());
+        println!("{}", amazons.curr_board().pprint());
 
         match player {
             Player::Ai => {
-                let succs = board.successors(team).count();
+                let succs = amazons.curr_board().successors(team).count();
                 let depth = 4;
                 println!("Choosing among {} moves with {} depth", succs, depth);
-                let next = max_move(&board, team, depth, &mut diststate);
-                if let (Some(b), _) = next {
-                    board = b;
+
+                if amazons.ai_move(team) {
                     team = team.other();
                 } else {
-                    println!("Ai for team {:?} surrenders!", team);
                     break;
                 }
             },
             Player::Human => {
-                if let (None, _) =  max_move(&board, team, 1, &mut diststate) {
-                    println!("Player for team {:?} has no moves and loses!", team);
-                    break;
-                }
                 let mut line = String::new();
                 loop {
                     println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
                     line.clear();
                     io::stdin().read_line(&mut line);
 
-                    if let Some((p,m,s)) = parse_move(&line) {
-                        if let Some(b) = board.with_move_checked(p,m,s) {
-                            board = b;
-                            team = team.other();
-                            break;
-                        }
+                    if line.trim() == "ai" {
+                        amazons.ai_move(team);
+                        team = team.other();
+                        break;
+                    } else if line.trim() == "undo" {
+                        amazons.undo_2_move();
+                        break;
+                    } else if let Some((p,m,s)) = parse_move(&line) {
+                        amazons.player_move(team, p, m, s);
+                        team = team.other();
+                        break;
                     } else {
                         println!("Could not parse coords");
                     }
