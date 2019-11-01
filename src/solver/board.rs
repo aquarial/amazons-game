@@ -92,10 +92,10 @@ pub struct DistState {
     next: VecDeque<(Pos, u8)>,
 }
 impl DistState {
-    pub fn new() -> DistState {
+    pub fn new(board_size: u8) -> DistState {
         DistState {
-            left: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
-            right: vec![u8::max_value(); (BOARD_SIZE * BOARD_SIZE) as usize],
+            left: vec![u8::max_value(); (board_size * board_size) as usize],
+            right: vec![u8::max_value(); (board_size * board_size) as usize],
             next: VecDeque::new(),
         }
     }
@@ -108,25 +108,18 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new() -> Board {
-        let mut b = BitVec::new_fill(false, (BOARD_SIZE*BOARD_SIZE) as u64);
-        for r in 0..BOARD_SIZE {
-            for c in 0..BOARD_SIZE {
-                if r == 0 || c == 0 || r == BOARD_SIZE-1 || c == BOARD_SIZE-1 {
-                    b.set((r * BOARD_SIZE + c) as u64,  true);
+    pub fn new(board_size: u8, players: Vec<Player>) -> Board {
+        let mut b = BitVec::new_fill(false, (board_size*board_size) as u64);
+
+        for r in 0..board_size {
+            for c in 0..board_size {
+                if r == 0 || c == 0 || r == board_size-1 || c == board_size-1 {
+                    b.set((r * board_size + c) as u64,  true);
                 }
             }
         }
-
-        let mut players = Vec::new();
-        let ix0 = 3;
-        let ix1 = 6;
-        players.push(Player{ team:Team::White, pos:Pos {row: ix0, col: ix0} });
-        players.push(Player{ team:Team::White, pos:Pos {row: ix0, col: ix1} });
-        players.push(Player{ team:Team::Black, pos:Pos {row: ix1, col: ix0} });
-        players.push(Player{ team:Team::Black, pos:Pos {row: ix1, col: ix1} });
         for p in &players {
-            b.set(p.pos.to_linear(BOARD_SIZE) as u64, true);
+            b.set(p.pos.to_linear(board_size) as u64, true);
         }
         return Board {
             walls: b,
