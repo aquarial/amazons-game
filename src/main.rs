@@ -106,9 +106,10 @@ fn main() {
                         amazons.undo_2_move();
                         break;
                     } else if let Some((p,m,s)) = parse_move(input) {
-                        amazons.player_move(team, p, m, s);
-                        team = team.other();
-                        break;
+                        if amazons.player_move(team, p, m, s) {
+                            team = team.other();
+                            break;
+                        }
                     } else {
                         println!("Could not parse coords");
                     }
