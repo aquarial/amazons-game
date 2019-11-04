@@ -110,7 +110,7 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value() + 1;
 
-    for b in top_n(10, board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
+    for (_, b) in top_n(10, board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
         //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
         //    // can't do this in the end-game!
         //    //continue;
@@ -127,7 +127,7 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
     return (best, score);
 }
 
-fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<V> {
+fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<(i64, V)> {
     let mut vec: Vec<(i64, V)> = Vec::with_capacity(101);
 
     iter.for_each(|new| {
@@ -138,6 +138,6 @@ fn top_n<V>(count: usize, iter: impl Iterator<Item = (i64, V)>) -> Vec<V> {
         vec.truncate(count)
     });
 
-    return vec.into_iter().map(|(_,v)| v).collect();
+    return vec;
 }
 
