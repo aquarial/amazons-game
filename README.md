@@ -11,8 +11,7 @@ their pieces to each open square in fewer moves. A Breadth-First-Search is
 performed for both teams, the score is based on how many squares the team can
 get to in fewer moves than the opponent.
 
-The AI has some interesting quirks. I have been soundly beaten in the mid-game,
-but it has a tendency to blunder the end game. 
+The AI has some interesting quirks.
 
 The UI is limited, but functional. Some improvements I'm considering:
 
