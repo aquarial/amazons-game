@@ -5,7 +5,7 @@ use board::*;
 pub struct Amazons {
     board_size: u8,
     boards: Vec<Board>,
-    cache: Vec<DistState>,
+    cache: DistState,
 }
 
 
@@ -22,7 +22,7 @@ impl Amazons {
         Amazons {
             board_size: board_size,
             boards: vec![Board::new(board_size, players)],
-            cache: vec![DistState::new(board_size)],
+            cache: DistState::new(),
         }
     }
 
@@ -77,7 +77,7 @@ impl Amazons {
 
     pub fn ai_move(&mut self, team: Team) -> bool {
         // TODO Multi-threading based on # of caches
-        let c0 = &mut self.cache[0];
+        let c0 = &mut self.cache;
         let board = &self.boards[self.boards.len() - 1];
         return match max_move(&board, team, 4, c0) {
             (Some(b), _) => {
