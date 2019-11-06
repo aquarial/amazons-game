@@ -183,7 +183,6 @@ impl Board {
             })
     }
 
-
     pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
         self.bfs(team, &mut dist_state.next, &mut dist_state.left);
         self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
@@ -211,6 +210,7 @@ impl Board {
         }
         return score;
     }
+
     fn bfs(&self, team: Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
             distances[i] = u8::max_value();
