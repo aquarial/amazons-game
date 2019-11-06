@@ -68,6 +68,7 @@ impl Pos {
     }
 }
 
+// NOTE: a player with Pos={0, 0} is considered invalid
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Player {
     pub team: Team,
@@ -124,6 +125,7 @@ impl Board {
         assert!(players.len() >= 1);
         let mut pa = [Player { pos: Pos {row:0, col:0}, team: Team::White }; MAX_NUM_PLAYERS];
         for (pi, p) in players.into_iter().enumerate() {
+            assert!(p.pos != Pos {row: 0, col: 0});
             pa[pi] = p;
         }
 
