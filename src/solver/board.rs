@@ -68,7 +68,7 @@ impl Pos {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Player {
     pub team: Team,
     pub pos: Pos,
