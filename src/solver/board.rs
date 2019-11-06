@@ -147,7 +147,7 @@ impl Board {
                     s.push('.');
                     continue;
                 }
-                match self.players.iter().find(|p| p.pos == pos) {
+                match self.players().find(|p| p.pos == pos) {
                     Some(p) => {
                         if p.team == Team::Black {
                             s.push('B');
@@ -163,7 +163,7 @@ impl Board {
         return s;
     }
     pub fn players(&self) -> impl Iterator<Item = &Player> {
-        self.players.iter()
+        self.players_array.iter().filter(|p| p.pos != Pos { row:0, col: 0})
     }
 
     const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
@@ -172,10 +172,12 @@ impl Board {
 
     pub fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
-        board.wall_set(self.players[player_ix].pos, false);
+        // NOTE: this only works since valid players are before the
+        // invalid players in the array, thus the indexes match
+        board.wall_set(self.players_array[player_ix].pos, false);
         board.wall_set(pos, true);
         board.wall_set(shot, true);
-        board.players[player_ix].pos = pos;
+        board.players_array[player_ix].pos = pos;
         board
     }
 
@@ -186,7 +188,7 @@ impl Board {
     }
 
     pub fn successors<'a>(&'a self, team: Team) -> impl Iterator<Item = Board> + 'a {
-        self.players.iter().enumerate().filter(move |(_,player)| player.team == team)
+        self.players().enumerate().filter(move |(_,player)| player.team == team)
             .flat_map(move |(pi, player): (usize, &'a Player)| {
                 self.queen_range(player.pos, player.pos).flat_map(move |pos: Pos| {
                     self.queen_range(pos, player.pos).map(move |shot: Pos| {
@@ -229,7 +231,7 @@ impl Board {
             distances[i] = u8::max_value();
         }
         next.clear();
-        self.players.iter()
+        self.players()
             .filter(|p| p.team == team)
             .map(|p| (p.pos, 0))
             .for_each(|it| next.push_back(it));
