@@ -74,13 +74,10 @@ fn main() {
 
         match player {
             Player::Ai => {
-                let succs = amazons.curr_board().successors(team).count();
-                let depth = 4;
-                println!("Choosing among {} moves with {} depth", succs, depth);
-
                 if amazons.ai_move(team) {
                     team = team.other();
                 } else {
+                    println!("AI for team {:?} gives up", team);
                     break;
                 }
             },
