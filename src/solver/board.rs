@@ -1,8 +1,6 @@
 use bv::BitVec;
 use std::collections::VecDeque;
 
-const BOARD_SIZE: u8 = 8+2;
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Team {
     White,
@@ -103,6 +101,7 @@ const MAX_NUM_PLAYERS: usize = 4;
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
+    board_size: u8,
     players_array: [Player; MAX_NUM_PLAYERS],
 }
 
@@ -131,19 +130,20 @@ impl Board {
 
         return Board {
             walls: b,
+            board_size: board_size,
             players_array: pa,
         };
     }
     pub fn wall_set(&mut self, p: Pos, val: bool) {
-        self.walls.set(p.to_linear(BOARD_SIZE) as u64, val);
+        self.walls.set(p.to_linear(self.board_size) as u64, val);
     }
     pub fn wall_at(&self, p: Pos) -> bool {
-        self.walls.get((p.to_linear(BOARD_SIZE)) as u64)
+        self.walls.get((p.to_linear(self.board_size)) as u64)
     }
     pub fn pprint(&self) -> String {
         let mut s = String::new();
-        for r in 0..BOARD_SIZE {
-            for c in 0..BOARD_SIZE {
+        for r in 0..self.board_size {
+            for c in 0..self.board_size {
                 let pos = Pos { row: r, col: c};
                 if !self.wall_at(pos) {
                     s.push('.');
@@ -240,7 +240,7 @@ impl Board {
 
         while let Some((pos,depth)) = next.pop_front() {
             for neigh in self.queen_range(pos, pos) {
-                let place = &mut distances[neigh.to_linear(BOARD_SIZE)];
+                let place = &mut distances[neigh.to_linear(self.board_size)];
                 if depth + 1 < *place {
                     *place = depth + 1;
                     next.push_back((neigh, depth+1));
