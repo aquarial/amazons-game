@@ -34,7 +34,7 @@ impl Amazons {
     }
 
     pub fn team_pieces(&self, team: Team) -> Vec<Pos> {
-        self.boards[self.boards.len() - 1].players.iter()
+        self.boards[self.boards.len() - 1].players()
             .filter(|p| p.team == team)
             .map(|p| p.pos)
             .collect()
@@ -65,8 +65,8 @@ impl Amazons {
             println!("Can't place token through piece at {:?}", er);
             return false;
         }
-        if let Some((pi, _)) = board.players.iter().enumerate().find(|(_,play)| play.pos == pos) {
-            if board.players[pi].team == team {
+        if let Some((pi, p)) = board.players().enumerate().find(|(_,play)| play.pos == pos) {
+            if p.team == team {
                 self.boards.push(board.with_move(pi, mv, shot));
                 return true;
             }

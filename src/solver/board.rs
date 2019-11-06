@@ -100,7 +100,7 @@ impl DistState {
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
-    pub players: Vec<Player>,
+    players: Vec<Player>,
 }
 
 impl Board {
@@ -151,6 +151,9 @@ impl Board {
             s.push('\n');
         }
         return s;
+    }
+    pub fn players(&self) -> impl Iterator<Item = &Player> {
+        self.players.iter()
     }
 
     const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
