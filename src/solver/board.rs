@@ -97,10 +97,12 @@ impl DistState {
     }
 }
 
+const MAX_NUM_PLAYERS: usize = 4;
+
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
-    players: Vec<Player>,
+    players_array: [Player; MAX_NUM_PLAYERS],
 }
 
 impl Board {
@@ -117,9 +119,17 @@ impl Board {
         for p in &players {
             b.set(p.pos.to_linear(board_size) as u64, true);
         }
+
+        assert!(players.len() <= MAX_NUM_PLAYERS);
+        assert!(players.len() >= 1);
+        let mut pa = [Player { pos: Pos {row:0, col:0}, team: Team::White }; MAX_NUM_PLAYERS];
+        for (pi, p) in players.into_iter().enumerate() {
+            pa[pi] = p;
+        }
+
         return Board {
             walls: b,
-            players: players,
+            players_array: pa,
         };
     }
     pub fn wall_set(&mut self, p: Pos, val: bool) {
