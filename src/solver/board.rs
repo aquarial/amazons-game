@@ -87,10 +87,10 @@ pub struct DistState {
     next: VecDeque<(Pos, u8)>,
 }
 impl DistState {
-    pub fn new() -> DistState {
+    pub fn with_board_size(board_size: u8) -> DistState {
         DistState {
-            left: Vec::new(),
-            right: Vec::new(),
+            left: vec![0; board_size as usize * board_size as usize],
+            right: vec![0; board_size as usize * board_size as usize],
             next: VecDeque::new(),
         }
     }

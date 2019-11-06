@@ -22,7 +22,7 @@ impl Amazons {
         Amazons {
             board_size: board_size,
             boards: vec![Board::new(board_size, players)],
-            cache: DistState::new(),
+            cache: DistState::with_board_size(board_size),
         }
     }
 
