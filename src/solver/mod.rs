@@ -1,6 +1,7 @@
 pub mod board;
 
 use board::*;
+use smallvec::SmallVec;
 
 pub struct Amazons {
     board_size: u8,
@@ -110,7 +111,7 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value() + 1;
 
-    for (_, b) in top_n(10, board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
+    for (_, b) in top_n(board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
         //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
         //    // can't do this in the end-game!
         //    //continue;
@@ -127,15 +128,15 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
     return (best, score);
 }
 
-fn top_n(count: usize, iter: impl Iterator<Item = (i64, Board)>) -> Vec<(i64, Board)> {
-    let mut vec: Vec<(i64, Board)> = Vec::with_capacity(count + 1);
+fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 20]> {
+    let mut vec = SmallVec::<[(i64, Board); 20]>::new(); // = Vec::with_capacity(count + 1);
 
     iter.for_each(|new| {
         match vec.binary_search_by_key(& -new.0, |a| -a.0) {
             Ok(i) => vec.insert(i, new),
             Err(i) => vec.insert(i, new),
         }
-        vec.truncate(count)
+        vec.truncate(18)
     });
 
     return vec;
