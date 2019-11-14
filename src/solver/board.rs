@@ -21,8 +21,8 @@ impl Team {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Pos {
-    pub row: u8,
-    pub col: u8,
+    pub row: i8,
+    pub col: i8,
 }
 impl Pos {
     pub fn in_a_line_with(&self, other: Pos) -> bool {
@@ -51,14 +51,11 @@ impl Pos {
         }
         return v;
     }
-    pub fn to_linear(&self, num_cols: u8) -> usize {
+    pub fn to_linear(&self, num_cols: i8) -> usize {
        self.row as usize * num_cols as usize + self.col as usize
     }
-    fn offset(base: u8, offset: i8) -> u8 {
-        (base as i8 + offset) as u8
-    }
     pub fn with_offset(&self, dir: (i8, i8), dist: i8) -> Pos {
-        Pos { row: Pos::offset(self.row, dist*dir.0), col: Pos::offset(self.col, dist * dir.1)}
+        Pos { row: self.row + dist * dir.0, col: self.col + dist * dir.1}
     }
 }
 
@@ -83,7 +80,7 @@ pub struct DistState {
     next: VecDeque<(Pos, u8)>,
 }
 impl DistState {
-    pub fn with_board_size(board_size: u8) -> DistState {
+    pub fn with_board_size(board_size: i8) -> DistState {
         DistState {
             left: vec![0; board_size as usize * board_size as usize],
             right: vec![0; board_size as usize * board_size as usize],
@@ -97,12 +94,12 @@ const MAX_NUM_PLAYERS: usize = 4;
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,
-    board_size: u8,
+    board_size: i8,
     players_array: [Player; MAX_NUM_PLAYERS],
 }
 
 impl Board {
-    pub fn new(board_size: u8, players: Vec<Player>) -> Board {
+    pub fn new(board_size: i8, players: Vec<Player>) -> Board {
         let mut b = BitVec::new_fill(false, (board_size*board_size) as u64);
 
         for r in 0..board_size {

@@ -4,7 +4,7 @@ use board::*;
 use smallvec::SmallVec;
 
 pub struct Amazons {
-    board_size: u8,
+    board_size: i8,
     boards: Vec<Board>,
     cache: DistState,
 }

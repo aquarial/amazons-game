@@ -8,22 +8,22 @@ use std::collections::HashMap;
 use std::io;
 
 
-fn parse_num(c: char) -> Option<u8> {
+fn parse_num(c: char) -> Option<i8> {
     for (i,t) in "12345678".chars().enumerate() {
         if c == t {
-            return Some((i+1) as u8);
+            return Some((i+1) as i8);
         }
     }
     for (i,t) in "abcdefgh".chars().enumerate() {
         if c == t {
-            return Some((i+1) as u8);
+            return Some((i+1) as i8);
         }
     }
     return None;
 }
 
 fn parse_pos(s: &str) -> Option<Pos> {
-    let pos: Vec<u8> = s.chars().map(parse_num).filter_map(|i| i).collect();
+    let pos: Vec<i8> = s.chars().map(parse_num).filter_map(|i| i).collect();
     if pos.len() == 2 {
         Some(Pos{row:pos[0], col:pos[1]})
     } else {
