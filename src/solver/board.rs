@@ -55,11 +55,7 @@ impl Pos {
        self.row as usize * num_cols as usize + self.col as usize
     }
     fn offset(base: u8, offset: i8) -> u8 {
-        if offset < 0 {
-            base - (offset.abs() as u8)
-        } else{
-            base + (offset.abs() as u8)
-        }
+        (base as i8 + offset) as u8
     }
     pub fn with_offset(&self, dir: (i8, i8), dist: i8) -> Pos {
         Pos { row: Pos::offset(self.row, dist*dir.0), col: Pos::offset(self.col, dist * dir.1)}
