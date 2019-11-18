@@ -138,19 +138,29 @@ impl Board {
         for r in 0..self.board_size {
             for c in 0..self.board_size {
                 let pos = Pos { row: r, col: c};
-                if !self.wall_at(pos) {
-                    s.push('.');
-                    continue;
-                }
                 match self.players().find(|p| p.pos == pos) {
                     Some(p) => {
-                        if p.team == Team::Black {
-                            s.push('B');
+                        if !self.wall_at(pos) {
+                            if p.team == Team::Black {
+                                s.push('b');
+                            } else {
+                                s.push('w');
+                            }
                         } else {
-                            s.push('W');
+                            if p.team == Team::Black {
+                                s.push('B');
+                            } else {
+                                s.push('W');
+                            }
                         }
                     },
-                    None => s.push('#'),
+                    None => {
+                        if self.wall_at(pos) {
+                            s.push('#')
+                        } else {
+                            s.push('.');
+                        }
+                    }
                 }
             }
             s.push('\n');
