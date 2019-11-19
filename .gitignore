@@ -1,2 +1,6 @@
+*flamegraph.svg
+perf.data
+perf.data.old
+
 /target
 **/*.rs.bk
