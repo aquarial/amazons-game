@@ -49,21 +49,26 @@ enum Player {
 fn main() {
     let mut input: HashMap<Team, Player> = HashMap::new();
 
-    for t in Team::teams() {
-        while input.get(&t) == None {
-            println!("{:?} is controlled by? [human, ai]", t);
-            let mut line = String::new();
-            io::stdin().read_line(&mut line);
-            if line.trim() == "ai" {
-                input.insert(t, Player::Ai);
-            }
-            if line.trim() == "human" {
-                input.insert(t, Player::Human);
+    if std::env::args().nth(1) == Some(String::from("--ai-battle")) {
+        for t in Team::teams() {
+            input.insert(t, Player::Ai);
+        }
+    } else {
+        for t in Team::teams() {
+            while input.get(&t) == None {
+                println!("{:?} is controlled by? [human, ai]", t);
+                let mut line = String::new();
+                io::stdin().read_line(&mut line);
+                if line.trim() == "ai" {
+                    input.insert(t, Player::Ai);
+                }
+                if line.trim() == "human" {
+                    input.insert(t, Player::Human);
+                }
             }
         }
     }
 
-    //let solver = Solver::new_8x8();
     let mut amazons = Amazons::new_8x8();
     let mut team = Team::White;
 
