@@ -186,24 +186,18 @@ impl Board {
         board
     }
 
-    fn queen_range<'a>(&'a self, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
-        Board::QUEEN_DIRS.iter().flat_map(move |dir|
-                                   (1..).map(move |dist| from.with_offset(*dir, dist))
-                                   .take_while(move |place| !self.wall_at(*place) || *place == blank))
-    }
-
     pub fn successors<'a>(&'a self, team: Team) -> impl Iterator<Item = Board> + 'a {
         self.players().enumerate().filter(move |(_,player)| player.team == team)
             .flat_map(move |(pi, player): (usize, &'a Player)| {
-                self.queen_range(player.pos, player.pos).flat_map(move |pos: Pos| {
-                    self.queen_range(pos, player.pos).map(move |shot: Pos| {
+                queen_range(self, player.pos, player.pos).flat_map(move |pos: Pos| {
+                    queen_range(self, pos, player.pos).map(move |shot: Pos| {
                         self.with_move(pi, pos, shot)
                     })
                 })
             })
     }
 
-    pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
+    pub fn eval_by_dist_queen(&self, team: Team, dist_state: &mut DistState) -> i64 {
         self.bfs(team, &mut dist_state.next, &mut dist_state.left);
         self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
@@ -242,7 +236,7 @@ impl Board {
             .for_each(|it| next.push_back(it));
 
         while let Some((pos,depth)) = next.pop_front() {
-            for neigh in self.queen_range(pos, pos) {
+            for neigh in queen_range(self, pos, pos) {
                 let place = &mut distances[neigh.to_linear(self.board_size)];
                 if depth + 1 < *place {
                     *place = depth + 1;
@@ -253,3 +247,8 @@ impl Board {
     }
 }
 
+fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
+    Board::QUEEN_DIRS.iter().flat_map(move |dir|
+                                      (1..).map(move |dist| from.with_offset(*dir, dist))
+                                      .take_while(move |place| !board.wall_at(*place) || *place == blank))
+}
