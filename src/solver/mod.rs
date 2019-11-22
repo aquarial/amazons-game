@@ -11,6 +11,22 @@ pub struct Amazons {
 
 
 impl Amazons {
+    pub fn new_5x5() -> Amazons {
+        let board_size = 5 + 2;
+
+        let mut players = Vec::new();
+        players.push(Player{ team:Team::White, pos:Pos {row:  2, col:  2} });
+        players.push(Player{ team:Team::White, pos:Pos {row:  2, col:  4} });
+        players.push(Player{ team:Team::Black, pos:Pos {row:  4, col:  2} });
+        players.push(Player{ team:Team::Black, pos:Pos {row:  4, col:  4} });
+
+        Amazons {
+            board_size: board_size,
+            boards: vec![Board::new(board_size, players)],
+            cache: DistState::with_board_size(board_size),
+        }
+    }
+
     pub fn new_8x8() -> Amazons {
         let board_size = 8 + 2;
 
