@@ -197,9 +197,9 @@ impl Board {
             })
     }
 
-    pub fn eval_by_dist_queen(&self, team: Team, dist_state: &mut DistState) -> i64 {
-        self.bfs(team, &mut dist_state.next, &mut dist_state.left);
-        self.bfs(team.other(), &mut dist_state.next, &mut dist_state.right);
+    pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
+        self.bfs(team, king_range, &mut dist_state.next, &mut dist_state.left);
+        self.bfs(team.other(), king_range, &mut dist_state.next, &mut dist_state.right);
         let mut score = 0;
         let mut is_end = true;
         for (&a,&b) in dist_state.left.iter().zip(dist_state.right.iter()) {
@@ -225,7 +225,7 @@ impl Board {
         return score;
     }
 
-    fn bfs(&self, team: Team, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
+    fn bfs(&self, team: Team, succ: for<'a> fn(&'a Board, Pos, Pos) -> Box<dyn Iterator<Item = Pos> + 'a>, next: &mut VecDeque<(Pos, u8)>, distances: &mut Vec<u8>) {
         for i in 0..distances.len() {
             distances[i] = u8::max_value();
         }
@@ -236,7 +236,7 @@ impl Board {
             .for_each(|it| next.push_back(it));
 
         while let Some((pos,depth)) = next.pop_front() {
-            for neigh in queen_range(self, pos, pos) {
+            for neigh in succ(self, pos, pos) {
                 let place = &mut distances[neigh.to_linear(self.board_size)];
                 if depth + 1 < *place {
                     *place = depth + 1;
@@ -247,8 +247,13 @@ impl Board {
     }
 }
 
-fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> impl Iterator<Item = Pos> + 'a {
-    Board::QUEEN_DIRS.iter().flat_map(move |dir|
+fn king_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
+    Box::new(Board::QUEEN_DIRS.iter().map(move |dir| from.with_offset(*dir, 1))
+                            .filter(move |place| !board.wall_at(*place) || *place == blank))
+}
+
+fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
+    Box::new(Board::QUEEN_DIRS.iter().flat_map(move |dir|
                                       (1..).map(move |dist| from.with_offset(*dir, dist))
-                                      .take_while(move |place| !board.wall_at(*place) || *place == blank))
+                                      .take_while(move |place| !board.wall_at(*place) || *place == blank)))
 }
