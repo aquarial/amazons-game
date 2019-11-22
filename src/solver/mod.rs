@@ -80,7 +80,7 @@ impl Amazons {
         // TODO Multi-threading based on # of caches
         let c0 = &mut self.cache;
         let board = &self.boards[self.boards.len() - 1];
-        return match max_move(&board, team, strategy, 4, c0) {
+        return match max_move(&board, team, strategy, 3, c0) {
             (Some(b), _) => {
                 self.boards.push(b);
                 true
