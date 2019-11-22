@@ -42,7 +42,7 @@ fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Player {
-    Ai,
+    Ai(EvalStrategy),
     Human,
 }
 
@@ -51,7 +51,7 @@ fn main() {
 
     if std::env::args().nth(1) == Some(String::from("--ai-battle")) {
         for t in Team::teams() {
-            input.insert(t, Player::Ai);
+            input.insert(t, Player::Ai(EvalStrategy::QueenDistance));
         }
     } else {
         for t in Team::teams() {
@@ -59,11 +59,18 @@ fn main() {
                 println!("{:?} is controlled by? [human, ai]", t);
                 let mut line = String::new();
                 io::stdin().read_line(&mut line);
-                if line.trim() == "ai" {
-                    input.insert(t, Player::Ai);
-                }
-                if line.trim() == "human" {
-                    input.insert(t, Player::Human);
+                let parts: Vec<String> = line.trim().split_ascii_whitespace().map(|s| String::from(s)).collect();
+                if parts.len() >= 1 {
+                    if parts[0] == "ai" {
+                        if parts.len() >= 2 && parts[1] == "king" {
+                            input.insert(t, Player::Ai(EvalStrategy::KingDistance));
+                        } else {
+                            input.insert(t, Player::Ai(EvalStrategy::QueenDistance));
+                        }
+                    }
+                    if parts[0] == "human" {
+                        input.insert(t, Player::Human);
+                    }
                 }
             }
         }
@@ -78,8 +85,8 @@ fn main() {
         println!("{}", amazons.curr_board().pprint());
 
         match player {
-            Player::Ai => {
-                if amazons.ai_move(team) {
+            Player::Ai(s) => {
+                if amazons.ai_move(team, s) {
                     team = team.other();
                 } else {
                     println!("AI for team {:?} gives up", team);
@@ -95,7 +102,7 @@ fn main() {
                     let input = buffer.trim();
 
                     if input == "ai" {
-                        amazons.ai_move(team);
+                        amazons.ai_move(team, EvalStrategy::QueenDistance);
                         team = team.other();
                         break;
                     } else if input == "pieces" {

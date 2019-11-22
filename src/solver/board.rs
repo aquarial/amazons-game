@@ -89,6 +89,12 @@ impl DistState {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum EvalStrategy {
+    QueenDistance,
+    KingDistance,
+}
+
 const MAX_NUM_PLAYERS: usize = 4;
 
 #[derive(Clone, Debug)]
@@ -197,9 +203,20 @@ impl Board {
             })
     }
 
-    pub fn evaluate(&self, team: Team, dist_state: &mut DistState) -> i64 {
-        self.bfs(team, king_range, &mut dist_state.next, &mut dist_state.left);
-        self.bfs(team.other(), king_range, &mut dist_state.next, &mut dist_state.right);
+    pub fn evaluate(&self, team: Team, strategy: EvalStrategy, dist_state: &mut DistState) -> i64 {
+        match strategy {
+            EvalStrategy::KingDistance => {
+                self.bfs_eval(team, king_range, dist_state)
+            },
+            EvalStrategy::QueenDistance => {
+                self.bfs_eval(team, queen_range, dist_state)
+            },
+        }
+    }
+    fn bfs_eval(&self, team: Team, succ: for<'a> fn(&'a Board, Pos, Pos) -> Box<dyn Iterator<Item = Pos> + 'a>, dist_state: &mut DistState) -> i64 {
+        self.bfs(team, succ, &mut dist_state.next, &mut dist_state.left);
+        self.bfs(team.other(), succ, &mut dist_state.next, &mut dist_state.right);
+
         let mut score = 0;
         let mut is_end = true;
         for (&a,&b) in dist_state.left.iter().zip(dist_state.right.iter()) {

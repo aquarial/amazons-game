@@ -76,11 +76,11 @@ impl Amazons {
         return false;
     }
 
-    pub fn ai_move(&mut self, team: Team) -> bool {
+    pub fn ai_move(&mut self, team: Team, strategy: EvalStrategy) -> bool {
         // TODO Multi-threading based on # of caches
         let c0 = &mut self.cache;
         let board = &self.boards[self.boards.len() - 1];
-        return match max_move(&board, team, 4, c0) {
+        return match max_move(&board, team, strategy, 4, c0) {
             (Some(b), _) => {
                 self.boards.push(b);
                 true
@@ -96,10 +96,10 @@ impl Amazons {
     }
 }
 
-fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
+fn max_move(board: &Board, team: Team, strategy: EvalStrategy, depth: i32, cache: &mut DistState) -> (Option<Board>, i64) {
     if depth <= 1 {
         let best = board.successors(team)
-            .map(|b| (b.evaluate(team, cache), b))
+            .map(|b| (b.evaluate(team, strategy, cache), b))
             .max_by_key(|it| it.0);
         if let Some((score, board)) = best {
             return (Some(board), score);
@@ -111,13 +111,13 @@ fn max_move(board: &Board, team: Team, depth: i32, cache: &mut DistState) -> (Op
     let mut best: Option<Board> = None;
     let mut score: i64 = i64::min_value() + 1;
 
-    for (_, b) in top_n(board.successors(team).map(|i| (i.evaluate(team, cache), i))) {
+    for (_, b) in top_n(board.successors(team).map(|i| (i.evaluate(team, strategy, cache), i))) {
         //if score != i64::min_value() && b.evaluate(team, dist_state) < starting_val - 1 {
         //    // can't do this in the end-game!
         //    //continue;
         //}
 
-        let (_, resp_score) = max_move(&b, team.other(), depth-1, cache);
+        let (_, resp_score) = max_move(&b, team.other(), strategy, depth-1, cache);
 
         if score < -resp_score {
             score = -resp_score;
