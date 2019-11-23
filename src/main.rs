@@ -1,25 +1,19 @@
 
 mod solver;
-mod util;
 
 use solver::*;
 use solver::board::*;
 
-use util::event::*;
-
-use std::collections::HashMap;
 use std::io;
-use tui::Terminal;
-use tui::backend::TermionBackend;
+use std::io::Write;
+use std::collections::HashMap;
+
+use termion::color;
+//use termion::raw::RawTerminal;
 use termion::raw::IntoRawMode;
-
+use termion::input::TermRead;
 use termion::event::Key;
-
-use tui::layout::{Constraint, Direction, Layout, Rect,};
-use tui::style::Color;
-use tui::widgets::canvas::{Canvas, Map, MapResolution, Rectangle};
-use tui::widgets::{Block, Borders, Widget};
-
+use termion::event::Event;
 
 fn parse_num(c: char) -> Option<i8> {
     for (i,t) in "12345678".chars().enumerate() {
@@ -59,47 +53,34 @@ enum Player {
     Human,
 }
 
-fn main() -> Result<(), failure::Error> {
-    let stdout = io::stdout().into_raw_mode()?;
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+fn main() -> Result<(), io::Error> {
+    let stdin = io::stdin();
+    let mut stdout = io::stdout().into_raw_mode()?;
 
-    terminal.clear()?;
-    // Setup event handlers
-    let events = Events::new();
 
-    loop {
-        terminal.draw(|mut f| {
-            let chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                .split(f.size());
-            Canvas::default()
-                .block(Block::default().borders(Borders::ALL).title("World"))
-                .paint(|ctx| {
-                    ctx.draw(&Rectangle {
-                        color: Color::Red,
-                        rect: Rect::new(10, 10, 41, 45),
-                    });
-                    ctx.print(10.0, 30.0, "You are here", Color::Yellow);
-                    ctx.print(10.0, 10.0, "x are here", Color::Yellow);
-                })
-                .x_bounds([0.0, 100.0])
-                .y_bounds([0.0, 100.0])
-                .render(&mut f, chunks[0]);
-        })?;
+    //let mut amazons = Amazons::new_5x5();
 
-        match events.next()? {
-            Event::Input(input) => match input {
-                Key::Char('q') => {
-                    break;
-                }
-                _ => {}
-            },
-            Event::Tick => {
-                //app.update();
+    for e in stdin.events() {
+        match e {
+            Ok(Event::Key(Key::Char('q'))) => {
+                break;
             }
+            Ok(Event::Key(k)) => {
+                write!(stdout, "{:?}", k)?;
+                stdout.flush()?;
+            },
+            _ => {
+                //writeln!(stdout, "no");
+            },
         }
+        //for r in 0..drawboard.board.len() {
+        //    for c in 0..drawboard.board[r].len() {
+        //        ctx.draw(&Rectangle {
+        //            color: render_token(drawboard.board[r][c]),
+        //            rect: Rect::new(5 + c as u16 * 10, 5 + r as u16 * 10, 5, 5),
+        //        });
+        //    }
+        //}
     }
 
     Ok(())
