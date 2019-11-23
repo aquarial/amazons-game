@@ -98,7 +98,7 @@ fn token_bg(dt: DrawableToken, even: bool) -> String {
     let checkered = if even {
         format!("{}", color::Bg(color::Rgb(128, 76, 21)))
     } else {
-        format!("{}", color::Bg(color::Rgb(150, 105, 57)))
+        format!("{}", color::Bg(color::Rgb(140, 90, 40)))
     };
 
     match dt {
