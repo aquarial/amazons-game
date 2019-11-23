@@ -77,9 +77,12 @@ fn main() -> Result<(), io::Error> {
         stdout.flush()?;
 
         match e {
+            Ok(Event::Key(Key::Ctrl('c'))) => {
+                break;
+            },
             Ok(Event::Key(Key::Char('q'))) => {
                 break;
-            }
+            },
             Ok(Event::Key(k)) => {
             },
             o => {
@@ -97,7 +100,7 @@ fn render_token(dt: DrawableToken) -> String {
 
 fn token_char(dt: DrawableToken) -> String {
     match dt {
-        DrawableToken::Empty => String::from("."),
+        DrawableToken::Empty => String::from("+"),
         DrawableToken::Wall => String::from("#"),
         DrawableToken::Piece(Team::Red) => String::from("R"),
         DrawableToken::Piece(Team::Blue) => String::from("B"),
@@ -108,8 +111,8 @@ fn token_fg(dt: DrawableToken) -> String {
     match dt {
         DrawableToken::Empty => format!("{}", color::Fg(color::LightBlack)),
         DrawableToken::Wall => format!("{}", color::Fg(color::White)),
-        DrawableToken::Piece(Team::Red) => format!("{}", color::Fg(color::LightRed)),
-        DrawableToken::Piece(Team::Blue) => format!("{}", color::Fg(color::LightBlue)),
+        DrawableToken::Piece(Team::Red) => format!("{}", color::Fg(color::Rgb(200, 50, 50))),
+        DrawableToken::Piece(Team::Blue) => format!("{}", color::Fg(color::Rgb(32, 155, 250))),
     }
 }
 
