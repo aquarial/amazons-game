@@ -96,14 +96,23 @@ pub enum EvalStrategy {
 }
 
 
-enum DrawableToken {
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum DrawableToken {
     Empty,
     Wall,
     Piece(Team),
 }
 
-struct DrawableBoard {
-    board: Vec<Vec<DrawableToken>>,
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct DrawableBoard {
+    pub board: Vec<Vec<DrawableToken>>,
+}
+impl DrawableBoard {
+    pub fn new() -> DrawableBoard {
+        DrawableBoard {
+            board: Vec::new(),
+        }
+    }
 }
 
 
