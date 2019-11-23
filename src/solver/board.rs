@@ -95,6 +95,18 @@ pub enum EvalStrategy {
     KingDistance,
 }
 
+
+enum DrawableToken {
+    Empty,
+    Wall,
+    Piece(Team),
+}
+
+struct DrawableBoard {
+    board: Vec<Vec<DrawableToken>>,
+}
+
+
 const MAX_NUM_PLAYERS: usize = 4;
 
 #[derive(Clone, Debug)]
@@ -139,6 +151,33 @@ impl Board {
     pub fn wall_at(&self, p: Pos) -> bool {
         self.walls.get((p.to_linear(self.board_size)) as u64)
     }
+
+    pub fn draw_board(&self, draw: &mut DrawableBoard) {
+        draw.board.truncate(self.board_size as usize);
+        while draw.board.len() < self.board_size as usize {
+            draw.board.push(Vec::new());
+        }
+        for r in 0..self.board_size as usize {
+            draw.board[r].truncate(self.board_size as usize);
+            while draw.board[r].len() < self.board_size as usize {
+                draw.board[r].push(DrawableToken::Empty);
+            }
+        }
+        for r in 0..self.board_size {
+            for c in 0..self.board_size {
+                if self.wall_at(Pos { row: r, col: c }) {
+                    draw.board[r as usize][c as usize] = DrawableToken::Wall;
+                } else {
+                    draw.board[r as usize][c as usize] = DrawableToken::Empty;
+                }
+            }
+        }
+        for p in self.players() {
+            let dt = DrawableToken::Piece(p.team);
+            draw.board[p.pos.row as usize][p.pos.col as usize] = dt;
+        }
+    }
+
     pub fn pprint(&self) -> String {
         let mut s = String::new();
         for r in 0..self.board_size {
@@ -173,6 +212,7 @@ impl Board {
         }
         return s;
     }
+
     pub fn players(&self) -> impl Iterator<Item = &Player> {
         self.players_array.iter().filter(|p| p.pos != Pos { row:0, col: 0})
     }
