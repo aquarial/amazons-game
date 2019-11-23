@@ -57,8 +57,8 @@ enum Player {
 
 fn main() -> Result<(), io::Error> {
     let stdin = io::stdin();
-    let stdout = io::stdout().into_raw_mode()?;
-    let mut stdout = cursor::HideCursor::from(stdout);
+    let stdout = io::stdout();
+    let mut stdout = stdout;
 
     let mut amazons = Amazons::new_5x5();
     let mut draw_board = DrawableBoard::new();
