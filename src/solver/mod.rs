@@ -107,6 +107,18 @@ impl Amazons {
         }
     }
 
+    pub fn evaluate(&mut self, ix: usize, team: Team, strategy: EvalStrategy) -> i64 {
+        return self.nth_last_board(ix).evaluate(team, strategy, &mut self.cache);
+    }
+
+    pub fn nth_last_board(&self, i: usize) -> Board {
+        if self.boards.len() > i {
+            return self.boards[self.boards.len() - 1 - i].clone();
+        } else {
+            return self.boards[0].clone();
+        }
+    }
+
     pub fn curr_board(&self) -> &Board {
         return &self.boards[self.boards.len() - 1];
     }

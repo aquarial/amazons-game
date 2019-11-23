@@ -145,11 +145,12 @@ fn main() {
         let player = input[&team];
         render_board(&mut amazons);
         println!();
-        println!("{:?} to go, controlled by {:?}", team, player);
+        println!("{:?} to pick a move, controlled by {:?}", team, player);
 
         match player {
             Player::Ai(s) => {
                 if amazons.ai_move(team, s) {
+                    println!("Ai evaluation went from {} to {}", amazons.evaluate(1, team, s), amazons.evaluate(0, team, s));
                     team = team.other();
                 } else {
                     println!("AI for team {:?} gives up", team);
