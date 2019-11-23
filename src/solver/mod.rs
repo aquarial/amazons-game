@@ -144,15 +144,15 @@ fn max_move(board: &Board, team: Team, strategy: EvalStrategy, depth: i32, cache
     return (best, score);
 }
 
-fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 20]> {
-    let mut vec = SmallVec::<[(i64, Board); 20]>::new(); // = Vec::with_capacity(count + 1);
+fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 15]> {
+    let mut vec = SmallVec::<[(i64, Board); 15]>::new(); // = Vec::with_capacity(count + 1);
 
     iter.for_each(|new| {
         match vec.binary_search_by_key(& -new.0, |a| -a.0) {
             Ok(i) => vec.insert(i, new),
             Err(i) => vec.insert(i, new),
         }
-        vec.truncate(18)
+        vec.truncate(14)
     });
 
     return vec;
