@@ -106,12 +106,12 @@ fn main() -> Result<(), failure::Error> {
 }
 
 
-fn render_token(dt: DrawableToken) -> Color {
+fn render_token(dt: DrawableToken) -> Box<dyn color::Color> {
     match dt {
-        DrawableToken::Empty => Color::Gray,
-        DrawableToken::Wall => Color::White,
-        DrawableToken::Piece(Team::Red) => Color::Red,
-        DrawableToken::Piece(Team::Blue) => Color::Blue,
+        DrawableToken::Empty => Box::new(color::LightBlack),
+        DrawableToken::Wall => Box::new(color::White),
+        DrawableToken::Piece(Team::Red) => Box::new(color::Red),
+        DrawableToken::Piece(Team::Blue) => Box::new(color::Blue),
     }
 }
 
