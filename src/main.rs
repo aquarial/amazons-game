@@ -64,16 +64,18 @@ fn main() -> Result<(), io::Error> {
     let mut draw_board = DrawableBoard::new();
 
     for e in stdin.events() {
-        writeln!(stdout, "{}{}", clear::All, cursor::Goto(1,1))?;
+        writeln!(stdout, "{}{}{}", color::Bg(color::Rgb(30, 30, 30)), clear::All, cursor::Goto(1,1))?;
         amazons.curr_board().draw_board(&mut draw_board);
 
         for r in 0..draw_board.board.len() {
             for c in 0..draw_board.board[r].len() {
-                write!(stdout, "{}", cursor::Goto(r as u16 + 1, c as u16 + 1))?;
-                write!(stdout, "{}", render_token(draw_board.board[r][c]))?;
+                write!(stdout, "{}", cursor::Goto(c as u16 * 2 + 1, r as u16 + 1))?;
+                write!(stdout, "{}", render_token(draw_board.board[r][c], (r+c)%2 == 0))?;
+                write!(stdout, "{}", cursor::Goto(c as u16 * 2 + 2, r as u16 + 1))?;
+                write!(stdout, "{}", render_token(draw_board.board[r][c], (r+c)%2 == 0))?;
             }
         }
-        write!(stdout, "{}", color::Bg(color::Reset))?;
+        write!(stdout, "{}", color::Bg(color::Rgb(30, 30, 30)))?;
         stdout.flush()?;
 
         match e {
@@ -94,13 +96,13 @@ fn main() -> Result<(), io::Error> {
 }
 
 
-fn render_token(dt: DrawableToken) -> String {
-    format!("{}{}{}", token_fg(dt), token_bg(dt), token_char(dt))
+fn render_token(dt: DrawableToken, even: bool) -> String {
+    format!("{}{}{}", token_fg(dt), token_bg(dt, even), token_char(dt))
 }
 
 fn token_char(dt: DrawableToken) -> String {
     match dt {
-        DrawableToken::Empty => String::from("+"),
+        DrawableToken::Empty => String::from(" "),
         DrawableToken::Wall => String::from("#"),
         DrawableToken::Piece(Team::Red) => String::from("R"),
         DrawableToken::Piece(Team::Blue) => String::from("B"),
@@ -111,14 +113,22 @@ fn token_fg(dt: DrawableToken) -> String {
     match dt {
         DrawableToken::Empty => format!("{}", color::Fg(color::LightBlack)),
         DrawableToken::Wall => format!("{}", color::Fg(color::White)),
-        DrawableToken::Piece(Team::Red) => format!("{}", color::Fg(color::Rgb(200, 50, 50))),
+        DrawableToken::Piece(Team::Red) => format!("{}", color::Fg(color::Rgb(250, 60, 60))),
         DrawableToken::Piece(Team::Blue) => format!("{}", color::Fg(color::Rgb(32, 155, 250))),
     }
 }
 
-fn token_bg(dt: DrawableToken) -> String {
+fn token_bg(dt: DrawableToken, even: bool) -> String {
+    let checkered = if even {
+        format!("{}", color::Bg(color::Rgb(128, 76, 21)))
+    } else {
+        format!("{}", color::Bg(color::Rgb(170, 115, 57)))
+    };
+
     match dt {
-        _ => format!("{}", color::Bg(color::Reset)),
+        DrawableToken::Wall => checkered,//format!("{}", color::Bg(color::Rgb(30, 30, 30))),
+        DrawableToken::Empty => checkered,
+        DrawableToken::Piece(_) => checkered,
     }
 }
 
