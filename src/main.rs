@@ -9,7 +9,9 @@ use std::io::Write;
 use std::collections::HashMap;
 
 use termion::color;
+use termion::cursor;
 //use termion::raw::RawTerminal;
+use termion::clear;
 use termion::raw::IntoRawMode;
 use termion::input::TermRead;
 use termion::event::Key;
@@ -55,47 +57,67 @@ enum Player {
 
 fn main() -> Result<(), io::Error> {
     let stdin = io::stdin();
-    let mut stdout = io::stdout().into_raw_mode()?;
+    let stdout = io::stdout().into_raw_mode()?;
+    let mut stdout = cursor::HideCursor::from(stdout);
 
-
-    //let mut amazons = Amazons::new_5x5();
+    let mut amazons = Amazons::new_5x5();
+    let mut draw_board = DrawableBoard::new();
 
     for e in stdin.events() {
+        writeln!(stdout, "{}{}", clear::All, cursor::Goto(1,1))?;
+        amazons.curr_board().draw_board(&mut draw_board);
+
+        for r in 0..draw_board.board.len() {
+            for c in 0..draw_board.board[r].len() {
+                write!(stdout, "{}", cursor::Goto(r as u16 + 1, c as u16 + 1))?;
+                write!(stdout, "{}", render_token(draw_board.board[r][c]))?;
+            }
+        }
+        write!(stdout, "{}", color::Bg(color::Reset))?;
+        stdout.flush()?;
+
         match e {
             Ok(Event::Key(Key::Char('q'))) => {
                 break;
             }
             Ok(Event::Key(k)) => {
-                write!(stdout, "{:?}", k)?;
-                stdout.flush()?;
             },
-            _ => {
-                //writeln!(stdout, "no");
+            o => {
             },
         }
-        //for r in 0..drawboard.board.len() {
-        //    for c in 0..drawboard.board[r].len() {
-        //        ctx.draw(&Rectangle {
-        //            color: render_token(drawboard.board[r][c]),
-        //            rect: Rect::new(5 + c as u16 * 10, 5 + r as u16 * 10, 5, 5),
-        //        });
-        //    }
-        //}
     }
 
     Ok(())
 }
 
 
-fn render_token(dt: DrawableToken) -> Box<dyn color::Color> {
+fn render_token(dt: DrawableToken) -> String {
+    format!("{}{}{}", token_fg(dt), token_bg(dt), token_char(dt))
+}
+
+fn token_char(dt: DrawableToken) -> String {
     match dt {
-        DrawableToken::Empty => Box::new(color::LightBlack),
-        DrawableToken::Wall => Box::new(color::White),
-        DrawableToken::Piece(Team::Red) => Box::new(color::Red),
-        DrawableToken::Piece(Team::Blue) => Box::new(color::Blue),
+        DrawableToken::Empty => String::from("."),
+        DrawableToken::Wall => String::from("#"),
+        DrawableToken::Piece(Team::Red) => String::from("R"),
+        DrawableToken::Piece(Team::Blue) => String::from("B"),
     }
 }
 
+fn token_fg(dt: DrawableToken) -> String {
+    match dt {
+        DrawableToken::Empty => format!("{}", color::Fg(color::LightBlack)),
+        DrawableToken::Wall => format!("{}", color::Fg(color::White)),
+        DrawableToken::Piece(Team::Red) => format!("{}", color::Fg(color::LightRed)),
+        DrawableToken::Piece(Team::Blue) => format!("{}", color::Fg(color::LightBlue)),
+    }
+}
+
+fn token_bg(dt: DrawableToken) -> String {
+    match dt {
+        _ => format!("{}", color::Bg(color::Reset)),
+    }
+}
 
 fn oldmain() {
     let mut input: HashMap<Team, Player> = HashMap::new();
