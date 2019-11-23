@@ -55,46 +55,22 @@ enum Player {
     Human,
 }
 
-fn main() -> Result<(), io::Error> {
-    let stdin = io::stdin();
-    let stdout = io::stdout();
-    let mut stdout = stdout;
-
-    let mut amazons = Amazons::new_5x5();
+fn render_board(amazons: &mut Amazons) {
     let mut draw_board = DrawableBoard::new();
+    amazons.curr_board().draw_board(&mut draw_board);
 
-    for e in stdin.events() {
-        writeln!(stdout, "{}{}{}", color::Bg(color::Rgb(30, 30, 30)), clear::All, cursor::Goto(1,1))?;
-        amazons.curr_board().draw_board(&mut draw_board);
-
-        for r in 0..draw_board.board.len() {
-            for c in 0..draw_board.board[r].len() {
-                write!(stdout, "{}", cursor::Goto(c as u16 * 2 + 1, r as u16 + 1))?;
-                write!(stdout, "{}", render_token(draw_board.board[r][c], (r+c)%2 == 0))?;
-                write!(stdout, "{}", cursor::Goto(c as u16 * 2 + 2, r as u16 + 1))?;
-                write!(stdout, "{}", render_token(draw_board.board[r][c], (r+c)%2 == 0))?;
-            }
+    println!();
+    for r in 0..draw_board.board.len() {
+        print!("  ");
+        for c in 0..draw_board.board[r].len() {
+            print!("{}", render_token(draw_board.board[r][c], (r+c)%2 == 0));
+            print!("{}", render_token(draw_board.board[r][c], (r+c)%2 == 0));
         }
-        write!(stdout, "{}", color::Bg(color::Rgb(30, 30, 30)))?;
-        stdout.flush()?;
-
-        match e {
-            Ok(Event::Key(Key::Ctrl('c'))) => {
-                break;
-            },
-            Ok(Event::Key(Key::Char('q'))) => {
-                break;
-            },
-            Ok(Event::Key(k)) => {
-            },
-            o => {
-            },
-        }
+        print!("{}", color::Bg(color::Reset));
+        println!();
     }
-
-    Ok(())
+    print!("{}", color::Bg(color::Reset));
 }
-
 
 fn render_token(dt: DrawableToken, even: bool) -> String {
     format!("{}{}{}", token_fg(dt), token_bg(dt, even), token_char(dt))
@@ -122,7 +98,7 @@ fn token_bg(dt: DrawableToken, even: bool) -> String {
     let checkered = if even {
         format!("{}", color::Bg(color::Rgb(128, 76, 21)))
     } else {
-        format!("{}", color::Bg(color::Rgb(170, 115, 57)))
+        format!("{}", color::Bg(color::Rgb(150, 105, 57)))
     };
 
     match dt {
@@ -132,7 +108,7 @@ fn token_bg(dt: DrawableToken, even: bool) -> String {
     }
 }
 
-fn oldmain() {
+fn main() {
     let mut input: HashMap<Team, Player> = HashMap::new();
 
     if std::env::args().nth(1) == Some(String::from("--ai-battle")) {
@@ -142,7 +118,7 @@ fn oldmain() {
     } else {
         for t in Team::teams() {
             while input.get(&t) == None {
-                println!("{:?} is controlled by? [human, ai]", t);
+                println!("{:?} is controlled by? [human, ai queen, ai king]", t);
                 let mut line = String::new();
                 io::stdin().read_line(&mut line);
                 let parts: Vec<String> = line.trim().split_ascii_whitespace().map(|s| String::from(s)).collect();
@@ -167,8 +143,9 @@ fn oldmain() {
 
     loop {
         let player = input[&team];
+        render_board(&mut amazons);
+        println!();
         println!("{:?} to go, controlled by {:?}", team, player);
-        println!("{}", amazons.curr_board().pprint());
 
         match player {
             Player::Ai(s) => {
