@@ -3,18 +3,18 @@ use std::collections::VecDeque;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Team {
-    White,
-    Black,
+    Red,
+    Blue,
 }
 impl Team {
     pub fn teams() -> Vec<Team> {
-        return vec![Team::White, Team::Black];
+        return vec![Team::Red, Team::Blue];
     }
 
     pub fn other(&self) -> Team {
         match self {
-            Team::White => Team::Black,
-            Team::Black => Team::White,
+            Team::Red => Team::Blue,
+            Team::Blue => Team::Red,
         }
     }
 }
@@ -121,7 +121,7 @@ impl Board {
 
         assert!(players.len() <= MAX_NUM_PLAYERS);
         assert!(players.len() >= 1);
-        let mut pa = [Player { pos: Pos {row:0, col:0}, team: Team::White }; MAX_NUM_PLAYERS];
+        let mut pa = [Player { pos: Pos {row:0, col:0}, team: Team::Red }; MAX_NUM_PLAYERS];
         for (pi, p) in players.into_iter().enumerate() {
             assert!(p.pos != Pos {row: 0, col: 0});
             pa[pi] = p;
@@ -147,13 +147,13 @@ impl Board {
                 match self.players().find(|p| p.pos == pos) {
                     Some(p) => {
                         if !self.wall_at(pos) {
-                            if p.team == Team::Black {
+                            if p.team == Team::Blue {
                                 s.push('b');
                             } else {
                                 s.push('w');
                             }
                         } else {
-                            if p.team == Team::Black {
+                            if p.team == Team::Blue {
                                 s.push('B');
                             } else {
                                 s.push('W');

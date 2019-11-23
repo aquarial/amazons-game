@@ -78,7 +78,7 @@ fn main() -> Result<(), failure::Error> {
                 .block(Block::default().borders(Borders::ALL).title("World"))
                 .paint(|ctx| {
                     ctx.draw(&Rectangle {
-                        color: Color::White,
+                        color: Color::Red,
                         rect: Rect::new(10, 10, 41, 45),
                     });
                     ctx.print(10.0, 30.0, "You are here", Color::Yellow);
@@ -139,7 +139,7 @@ fn oldmain() {
     }
 
     let mut amazons = Amazons::new_5x5();
-    let mut team = Team::White;
+    let mut team = Team::Red;
 
     loop {
         let player = input[&team];

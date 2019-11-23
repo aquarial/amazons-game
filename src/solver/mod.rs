@@ -15,10 +15,10 @@ impl Amazons {
         let board_size = 5 + 2;
 
         let mut players = Vec::new();
-        players.push(Player{ team:Team::White, pos:Pos {row:  2, col:  2} });
-        players.push(Player{ team:Team::White, pos:Pos {row:  2, col:  4} });
-        players.push(Player{ team:Team::Black, pos:Pos {row:  4, col:  2} });
-        players.push(Player{ team:Team::Black, pos:Pos {row:  4, col:  4} });
+        players.push(Player{ team:Team::Red, pos:Pos {row:  2, col:  2} });
+        players.push(Player{ team:Team::Red, pos:Pos {row:  2, col:  4} });
+        players.push(Player{ team:Team::Blue, pos:Pos {row:  4, col:  2} });
+        players.push(Player{ team:Team::Blue, pos:Pos {row:  4, col:  4} });
 
         Amazons {
             board_size: board_size,
@@ -31,10 +31,10 @@ impl Amazons {
         let board_size = 8 + 2;
 
         let mut players = Vec::new();
-        players.push(Player{ team:Team::White, pos:Pos {row:  3, col:  3} });
-        players.push(Player{ team:Team::White, pos:Pos {row:  3, col:  6} });
-        players.push(Player{ team:Team::Black, pos:Pos {row:  6, col:  3} });
-        players.push(Player{ team:Team::Black, pos:Pos {row:  6, col:  6} });
+        players.push(Player{ team:Team::Red, pos:Pos {row:  3, col:  3} });
+        players.push(Player{ team:Team::Red, pos:Pos {row:  3, col:  6} });
+        players.push(Player{ team:Team::Blue, pos:Pos {row:  6, col:  3} });
+        players.push(Player{ team:Team::Blue, pos:Pos {row:  6, col:  6} });
 
         Amazons {
             board_size: board_size,
