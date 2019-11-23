@@ -266,7 +266,7 @@ fn king_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<I
                             .filter(move |place| !board.wall_at(*place) || *place == blank))
 }
 
-fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
+pub fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
     Box::new(Board::QUEEN_DIRS.iter().flat_map(move |dir|
                                       (1..).map(move |dist| from.with_offset(*dir, dist))
                                       .take_while(move |place| !board.wall_at(*place) || *place == blank)))
