@@ -106,6 +106,14 @@ fn main() -> Result<(), failure::Error> {
 }
 
 
+fn render_token(dt: DrawableToken) -> Color {
+    match dt {
+        DrawableToken::Empty => Color::Gray,
+        DrawableToken::Wall => Color::White,
+        DrawableToken::Piece(Team::Red) => Color::Red,
+        DrawableToken::Piece(Team::Blue) => Color::Blue,
+    }
+}
 
 
 fn oldmain() {
