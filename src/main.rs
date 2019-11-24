@@ -138,7 +138,7 @@ fn main() {
         }
     }
 
-    let mut amazons = Amazons::new_5x5();
+    let mut amazons = Amazons::new_8x8();
     let mut team = Team::Red;
 
     loop {
