@@ -153,7 +153,11 @@ fn max_move(board: &Board, team: Team, strategy: EvalStrategy, depth: i32, cache
         }
     }
 
-    return (best, score);
+    match best {
+        None => max_move(board, team, strategy, 1, cache),
+        _ => (best, score)
+
+    }
 }
 
 fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 15]> {
