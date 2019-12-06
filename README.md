@@ -22,4 +22,4 @@ The UI is limited, but functional. Some possible improvements
 * Other heuristics?
 * Min-Max search to more depth later in the game
 
-![Screenshot showing color board and row column input](/amazons.png)
+![Screenshot showing color board and row column input](/media/amazons.png)
