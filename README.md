@@ -13,11 +13,13 @@ get to in fewer moves than the opponent.
 
 The AI has some interesting quirks.
 
-The UI is limited, but functional. Some improvements I'm considering:
+The UI is limited, but functional. Some possible improvements
 
 * 'help' command to list available commands
 * Better cli printing to mention other available commands
 * Alternate move input methods (TUI?)
-* Multi-threaded AI
+* Multi-threaded AI (rayon?)
+* Other heuristics?
+* Min-Max search to more depth later in the game
 
 ![Screenshot showing color board and row column input](/amazons.png)
