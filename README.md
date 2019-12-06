@@ -22,4 +22,6 @@ The UI is limited, but functional. Some possible improvements
 * Other heuristics?
 * Min-Max search to more depth later in the game
 
+![ODP presentation about the project](/media/presentation.odp)
+
 ![Screenshot showing color board and row column input](/media/amazons.png)
