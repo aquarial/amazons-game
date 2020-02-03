@@ -1,5 +1,5 @@
 
-mod solver;
+pub mod solver;
 
 use solver::*;
 use solver::board::*;
