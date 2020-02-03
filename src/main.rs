@@ -18,17 +18,14 @@ use termion::event::Key;
 use termion::event::Event;
 
 fn parse_num(c: char) -> Option<i8> {
-    for (i,t) in "12345678".chars().enumerate() {
-        if c == t {
-            return Some((i+1) as i8);
-        }
+    let c = c as u8;
+    if c >= b'1' && c <= b'8' {
+        Some((c - b'1' + 1) as i8)
+    } else if c >= b'a' && c <= b'h' {
+        Some((c - b'a' + 1) as i8)
+    } else {
+        None
     }
-    for (i,t) in "abcdefgh".chars().enumerate() {
-        if c == t {
-            return Some((i+1) as i8);
-        }
-    }
-    return None;
 }
 
 fn parse_pos(s: &str) -> Option<Pos> {
