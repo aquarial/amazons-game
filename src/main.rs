@@ -5,17 +5,9 @@ use solver::*;
 use solver::board::*;
 
 use std::io;
-use std::io::Write;
 use std::collections::HashMap;
 
 use termion::color;
-use termion::cursor;
-//use termion::raw::RawTerminal;
-use termion::clear;
-use termion::raw::IntoRawMode;
-use termion::input::TermRead;
-use termion::event::Key;
-use termion::event::Event;
 
 fn parse_num(c: char) -> Option<i8> {
     let c = c as u8;
@@ -117,7 +109,8 @@ fn main() {
             while input.get(&t) == None {
                 println!("{:?} is controlled by? [human, ai queen, ai king]", t);
                 let mut line = String::new();
-                io::stdin().read_line(&mut line);
+                io::stdin().read_line(&mut line)
+                    .expect("failed to read line");
                 let parts: Vec<String> = line.trim().split_ascii_whitespace().map(|s| String::from(s)).collect();
                 if parts.len() >= 1 {
                     if parts[0] == "ai" {
@@ -159,7 +152,8 @@ fn main() {
                 loop {
                     println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
                     buffer.clear();
-                    io::stdin().read_line(&mut buffer);
+                    io::stdin().read_line(&mut buffer)
+                        .expect("failed to read line");
                     let input = buffer.trim();
 
                     if input == "ai" {
