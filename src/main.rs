@@ -34,12 +34,13 @@ fn parse_pos(s: &str) -> Option<Pos> {
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
-    let vec: Vec<Pos> = s.split(" ").map(parse_pos).filter_map(|i| i).collect();
-    if vec.len() == 3 {
-        Some((vec[0], vec[1], vec[2]))
-    } else {
-        None
-    }
+    let mut positions = s.split_ascii_whitespace()
+        .flat_map(parse_pos);
+    positions.next()
+        .and_then(|a| positions.next()
+            .and_then(|b| positions.next()
+                .map(|c| (a, b, c))))
+        .filter(|_| positions.next().is_none())
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
