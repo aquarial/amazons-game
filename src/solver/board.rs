@@ -1,6 +1,7 @@
 use bv::BitVec;
 use std::collections::VecDeque;
 
+/// Red or Blue.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Team {
     Red,
@@ -25,12 +26,16 @@ pub struct Pos {
     pub col: i8,
 }
 impl Pos {
+    /// Whether this position is axis-aligned
+    /// with the other.
     pub fn in_a_line_with(&self, other: Pos) -> bool {
         let dr = self.row.max(other.row) - self.row.min(other.row);
         let dc = self.col.max(other.col) - self.col.min(other.col);
 
         dr == 0 || dc == 0 || dr == dc
     }
+    /// A path from `self` to `other`, which may 
+    /// walk diagonally.
     pub fn along_line(&self, other: Pos) -> Vec<Pos> {
         let mut v = Vec::new();
         let mut walk = self.clone();
@@ -51,21 +56,26 @@ impl Pos {
         }
         return v;
     }
+    /// Coordinate flatten.
     pub fn to_linear(&self, num_cols: i8) -> usize {
        self.row as usize * num_cols as usize + self.col as usize
     }
+    /// Calculate `self + (dir × dist)`
     pub fn with_offset(&self, dir: (i8, i8), dist: i8) -> Pos {
         Pos { row: self.row + dist * dir.0, col: self.col + dist * dir.1}
     }
 }
 
-// NOTE: a player with Pos={0, 0} is considered invalid
+/// Team and location.
+/// 
+/// NOTE: a player with Pos={0, 0} is considered invalid
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Player {
     pub team: Team,
     pub pos: Pos,
 }
 
+/// Player and what they do.
 #[derive(Clone, Debug)]
 pub struct Move {
     pub player: Player,
@@ -118,6 +128,7 @@ impl DrawableBoard {
 
 const MAX_NUM_PLAYERS: usize = 4;
 
+/// Game state at an instant.
 #[derive(Clone, Debug)]
 pub struct Board {
     walls: BitVec,

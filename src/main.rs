@@ -1,52 +1,46 @@
 
-mod solver;
+/// Amazons simulation and AI.
+pub mod solver;
 
 use solver::*;
 use solver::board::*;
 
 use std::io;
-use std::io::Write;
 use std::collections::HashMap;
 
 use termion::color;
-use termion::cursor;
-//use termion::raw::RawTerminal;
-use termion::clear;
-use termion::raw::IntoRawMode;
-use termion::input::TermRead;
-use termion::event::Key;
-use termion::event::Event;
 
 fn parse_num(c: char) -> Option<i8> {
-    for (i,t) in "12345678".chars().enumerate() {
-        if c == t {
-            return Some((i+1) as i8);
-        }
+    let c = c as u8;
+    if c >= b'1' && c <= b'8' {
+        Some((c - b'1' + 1) as i8)
+    } else if c >= b'a' && c <= b'h' {
+        Some((c - b'a' + 1) as i8)
+    } else if c >= b'A' && c <= b'H' {
+        Some((c - b'A' + 1) as i8)
+    } else {
+        None
     }
-    for (i,t) in "abcdefgh".chars().enumerate() {
-        if c == t {
-            return Some((i+1) as i8);
-        }
-    }
-    return None;
 }
 
 fn parse_pos(s: &str) -> Option<Pos> {
-    let pos: Vec<i8> = s.chars().map(parse_num).filter_map(|i| i).collect();
-    if pos.len() == 2 {
-        Some(Pos{row:pos[0], col:pos[1]})
-    } else {
-        None
-    }
+    let mut chars = s.chars();
+    chars.next()
+        .and_then(parse_num)
+        .and_then(|row| chars.next()
+            .and_then(parse_num)
+            .map(|col| Pos { row, col }))
+        .filter(|_| chars.next().is_none())
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
-    let vec: Vec<Pos> = s.to_lowercase().split(" ").map(parse_pos).filter_map(|i| i).collect();
-    if vec.len() == 3 {
-        Some((vec[0], vec[1], vec[2]))
-    } else {
-        None
-    }
+    let mut positions = s.split_ascii_whitespace()
+        .flat_map(parse_pos);
+    positions.next()
+        .and_then(|a| positions.next()
+            .and_then(|b| positions.next()
+                .map(|c| (a, b, c))))
+        .filter(|_| positions.next().is_none())
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -120,7 +114,8 @@ fn main() {
             while input.get(&t) == None {
                 println!("{:?} is controlled by? [human, ai queen, ai king]", t);
                 let mut line = String::new();
-                io::stdin().read_line(&mut line);
+                io::stdin().read_line(&mut line)
+                    .expect("failed to read line");
                 let parts: Vec<String> = line.trim().split_ascii_whitespace().map(|s| String::from(s)).collect();
                 if parts.len() >= 1 {
                     if parts[0] == "ai" {
@@ -162,7 +157,8 @@ fn main() {
                 loop {
                     println!("Choose move for team {:?} in format 'RowCol RowCol RowCol'", team);
                     buffer.clear();
-                    io::stdin().read_line(&mut buffer);
+                    io::stdin().read_line(&mut buffer)
+                        .expect("failed to read line");
                     let input = buffer.trim();
 
                     if input == "ai" {
