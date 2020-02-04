@@ -66,7 +66,7 @@ impl Amazons {
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
         let board = self.boards[self.boards.len() - 1].clone();
 
-        for coord in vec![pos, mv, shot] {
+        for &coord in &[pos, mv, shot] {
             if coord.row >= self.board_size || coord.col >= self.board_size {
                 println!("Coord {:?} is outside board_size ({}, {})", coord,
                          self.board_size, self.board_size);
