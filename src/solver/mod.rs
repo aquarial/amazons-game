@@ -54,11 +54,10 @@ impl Amazons {
     }
 
     /// All the pieces owned by a team.
-    pub fn team_pieces(&self, team: Team) -> Vec<Pos> {
+    pub fn team_pieces<'s>(&'s self, team: Team) -> impl Iterator<Item=Pos> + 's {
         self.boards[self.boards.len() - 1].players()
-            .filter(|p| p.team == team)
+            .filter(move |p| p.team == team)
             .map(|p| p.pos)
-            .collect()
     }
 
     /// Make a move for a player team.
