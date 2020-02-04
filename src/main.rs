@@ -1,4 +1,5 @@
 
+/// Amazons simulation and AI.
 pub mod solver;
 
 use solver::*;
@@ -21,12 +22,13 @@ fn parse_num(c: char) -> Option<i8> {
 }
 
 fn parse_pos(s: &str) -> Option<Pos> {
-    let pos: Vec<i8> = s.chars().map(parse_num).filter_map(|i| i).collect();
-    if pos.len() == 2 {
-        Some(Pos{row:pos[0], col:pos[1]})
-    } else {
-        None
-    }
+    let mut chars = s.chars();
+    chars.next()
+        .and_then(parse_num)
+        .and_then(|row| chars.next()
+            .and_then(parse_num)
+            .map(|col| Pos { row, col }))
+        .filter(|_| chars.next().is_none())
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
