@@ -16,6 +16,8 @@ fn parse_num(c: char) -> Option<i8> {
         Some((c - b'1' + 1) as i8)
     } else if c >= b'a' && c <= b'h' {
         Some((c - b'a' + 1) as i8)
+    } else if c >= b'A' && c <= b'H' {
+        Some((c - b'A' + 1) as i8)
     } else {
         None
     }
@@ -32,7 +34,7 @@ fn parse_pos(s: &str) -> Option<Pos> {
 }
 
 fn parse_move(s: &str) -> Option<(Pos,Pos,Pos)> {
-    let vec: Vec<Pos> = s.to_lowercase().split(" ").map(parse_pos).filter_map(|i| i).collect();
+    let vec: Vec<Pos> = s.split(" ").map(parse_pos).filter_map(|i| i).collect();
     if vec.len() == 3 {
         Some((vec[0], vec[1], vec[2]))
     } else {
