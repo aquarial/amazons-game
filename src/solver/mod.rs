@@ -3,6 +3,8 @@ pub mod board;
 use board::*;
 use smallvec::SmallVec;
 
+/// Data structures for amazon simultation, 
+/// history-tracking, and AI.
 pub struct Amazons {
     board_size: i8,
     boards: Vec<Board>,
@@ -43,6 +45,7 @@ impl Amazons {
         }
     }
 
+    /// Revert the last two moves.
     pub fn undo_2_move(&mut self) {
         if self.boards.len() >= 3 {
             self.boards.pop();
@@ -50,6 +53,7 @@ impl Amazons {
         }
     }
 
+    /// All the pieces owned by a team.
     pub fn team_pieces(&self, team: Team) -> Vec<Pos> {
         self.boards[self.boards.len() - 1].players()
             .filter(|p| p.team == team)
@@ -57,6 +61,9 @@ impl Amazons {
             .collect()
     }
 
+    /// Make a move for a player team.
+    ///
+    /// Return false if the move is invalid.
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
         let board = self.boards[self.boards.len() - 1].clone();
 
@@ -92,6 +99,9 @@ impl Amazons {
         return false;
     }
 
+    /// Compute and make a move for an AI team.
+    ///
+    /// Return false if the AI gives up.
     pub fn ai_move(&mut self, team: Team, strategy: EvalStrategy) -> bool {
         // TODO Multi-threading based on # of caches
         let c0 = &mut self.cache;
@@ -107,10 +117,15 @@ impl Amazons {
         }
     }
 
+    /// Evaluate the `ix`th last board with an AI heuristic.
     pub fn evaluate(&mut self, ix: usize, team: Team, strategy: EvalStrategy) -> i64 {
         return self.nth_last_board(ix).evaluate(team, strategy, &mut self.cache);
     }
 
+    /// Look back in history for a board state.
+    ///
+    /// If the index is too far back in time, this 
+    /// returns the first board in history.
     pub fn nth_last_board(&self, i: usize) -> Board {
         if self.boards.len() > i {
             return self.boards[self.boards.len() - 1 - i].clone();
@@ -119,6 +134,7 @@ impl Amazons {
         }
     }
 
+    /// The most recent board state.
     pub fn curr_board(&self) -> &Board {
         return &self.boards[self.boards.len() - 1];
     }
