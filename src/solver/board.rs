@@ -34,7 +34,7 @@ impl Pos {
 
         dr == 0 || dc == 0 || dr == dc
     }
-    /// A path from `self` to `other`, which may 
+    /// A path from `self` to `other`, which may
     /// walk diagonally.
     pub fn along_line(&self, other: Pos) -> Vec<Pos> {
         let mut v = Vec::new();
@@ -67,7 +67,7 @@ impl Pos {
 }
 
 /// Team and location.
-/// 
+///
 /// NOTE: a player with Pos={0, 0} is considered invalid
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Player {

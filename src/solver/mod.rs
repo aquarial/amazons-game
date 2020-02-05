@@ -3,7 +3,7 @@ pub mod board;
 use board::*;
 use smallvec::SmallVec;
 
-/// Data structures for amazon simultation, 
+/// Data structures for amazon simultation,
 /// history-tracking, and AI.
 pub struct Amazons {
     board_size: i8,
@@ -123,7 +123,7 @@ impl Amazons {
 
     /// Look back in history for a board state.
     ///
-    /// If the index is too far back in time, this 
+    /// If the index is too far back in time, this
     /// returns the first board in history.
     pub fn nth_last_board(&self, i: usize) -> Board {
         if self.boards.len() > i {
@@ -188,4 +188,3 @@ fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 15
 
     return vec;
 }
-

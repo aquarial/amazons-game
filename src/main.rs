@@ -1,4 +1,3 @@
-
 /// Amazons simulation and AI.
 pub mod solver;
 
@@ -187,4 +186,3 @@ fn main() {
         }
     }
 }
-
