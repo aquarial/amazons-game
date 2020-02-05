@@ -63,39 +63,34 @@ impl Amazons {
     /// Make a move for a player team.
     ///
     /// Return false if the move is invalid.
-    pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> bool {
+    pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> Result<(), String> {
         let board = self.boards[self.boards.len() - 1].clone();
 
         for &coord in &[pos, mv, shot] {
             if coord.row >= self.board_size || coord.col >= self.board_size {
-                println!("Coord {:?} is outside board_size ({}, {})", coord,
-                         self.board_size, self.board_size);
+                return Err(format!("Coord {:?} is outside board_size ({}, {})", coord,
+                         self.board_size, self.board_size));
             }
         }
         if pos == mv || mv == shot || !pos.in_a_line_with(mv) {
-            println!("Moves not in a line!");
-            return false;
+            return Err(format!("Moves not in a line!"));
         }
         if !mv.in_a_line_with(shot) {
-            println!("Shoot is not in a line!");
-            return false;
+            return Err(format!("Shoot is not in a line!"));
         }
         if let Some(er) = pos.along_line(mv).iter().find(|&&p| board.wall_at(p)) {
-            println!("Can't move through piece at {:?}", er);
-            return false;
+            return Err(format!("Can't move through piece at {:?}", er));
         }
         if let Some(er) = mv.along_line(shot).iter().filter(|&&p| p != pos).find(|&&p| board.wall_at(p)) {
-            println!("Can't place token through piece at {:?}", er);
-            return false;
+            return Err(format!("Can't place token through piece at {:?}", er));
         }
         if let Some((pi, p)) = board.players().enumerate().find(|(_,play)| play.pos == pos) {
             if p.team == team {
                 self.boards.push(board.with_move(pi, mv, shot));
-                return true;
+                return Ok(());
             }
         }
-        println!("You don't have a piece at the position");
-        return false;
+        return Err(format!("You don't have a piece at the position"));
     }
 
     /// Compute and make a move for an AI team.

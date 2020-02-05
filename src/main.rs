@@ -174,9 +174,14 @@ fn main() {
                         amazons.undo_2_move();
                         break;
                     } else if let Some((p,m,s)) = parse_move(input) {
-                        if amazons.player_move(team, p, m, s) {
-                            team = team.other();
-                            break;
+                        match amazons.player_move(team, p, m, s) {
+                            Ok(()) => {
+                                team = team.other();
+                                break;
+                            },
+                            Err(msg) => {
+                                println!("Invalid Move: {}\n", msg);
+                            }
                         }
                     } else {
                         println!("Could not parse coords");
