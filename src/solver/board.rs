@@ -237,9 +237,6 @@ impl Board {
         self.players_array.iter().filter(|p| p.pos != Pos { row:0, col: 0})
     }
 
-    const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
-                                      ( 0,-1)       ,( 0,1),
-                                      ( 1,-1),( 1,0),( 1,1)];
 
     pub fn with_move(&self, player_ix: usize, pos: Pos, shot: Pos) -> Board {
         let mut board = self.clone();
@@ -321,13 +318,18 @@ impl Board {
     }
 }
 
+const QUEEN_DIRS: [(i8,i8); 8] = [(-1,-1),(-1,0),(-1,1),
+                                  ( 0,-1)       ,( 0,1),
+                                  ( 1,-1),( 1,0),( 1,1)];
+
+
 fn king_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
-    Box::new(Board::QUEEN_DIRS.iter().map(move |dir| from.with_offset(*dir, 1))
+    Box::new(QUEEN_DIRS.iter().map(move |dir| from.with_offset(*dir, 1))
                             .filter(move |place| !board.wall_at(*place) || *place == blank))
 }
 
 pub fn queen_range<'a>(board: &'a Board, from: Pos, blank: Pos) -> Box<dyn Iterator<Item = Pos> + 'a> {
-    Box::new(Board::QUEEN_DIRS.iter().flat_map(move |dir|
+    Box::new(QUEEN_DIRS.iter().flat_map(move |dir|
                                       (1..).map(move |dist| from.with_offset(*dir, dist))
                                       .take_while(move |place| !board.wall_at(*place) || *place == blank)))
 }
