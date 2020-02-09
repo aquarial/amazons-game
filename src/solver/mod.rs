@@ -171,7 +171,7 @@ fn max_move(board: &Board, team: Team, strategy: EvalStrategy, depth: i32, cache
 }
 
 fn top_n(iter: impl Iterator<Item = (i64, Board)>) -> SmallVec<[(i64, Board); 15]> {
-    let mut vec = SmallVec::<[(i64, Board); 15]>::new(); // = Vec::with_capacity(count + 1);
+    let mut vec = SmallVec::<[(i64, Board); 15]>::new();
 
     iter.for_each(|new| {
         match vec.binary_search_by_key(& -new.0, |a| -a.0) {
