@@ -3,7 +3,7 @@ pub mod board;
 use board::*;
 use smallvec::SmallVec;
 
-/// Data structures for amazon simultation,
+/// Data structures for amazon simulation,
 /// history-tracking, and AI.
 pub struct Amazons {
     board_size: i8,
@@ -60,9 +60,9 @@ impl Amazons {
             .map(|p| p.pos)
     }
 
-    /// Make a move for a player team.
+    /// Try to record a player's move
     ///
-    /// Return false if the move is invalid.
+    /// Return Err(msg) explaining the error if the move is invalid.
     pub fn player_move(&mut self, team: Team, pos: Pos, mv: Pos, shot: Pos) -> Result<(), String> {
         let board = self.boards[self.boards.len() - 1].clone();
 
