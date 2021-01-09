@@ -1,5 +1,7 @@
 # Amazons AI
 
+#### Play online *today* at https://www.upl.cs.wisc.edu/games/amazonsai/index.html!
+
 Simple min-max AI for a modified
 [Game of the Amazons](https://en.wikipedia.org/wiki/Game_of_the_Amazons)
 
